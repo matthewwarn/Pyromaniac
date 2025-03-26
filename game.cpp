@@ -46,6 +46,8 @@ void Game::Quit()
 	m_bLooping = false;
 }
 
+// ONLY ON 5x02 BRANCH
+
 bool Game::Initialise()
 {
 	int bbWidth = 1024;
