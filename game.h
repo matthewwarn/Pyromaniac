@@ -1,4 +1,5 @@
 // COMP710 GP Framework
+#include <vector>
 #ifndef GAME_H
 #define GAME_H
 
@@ -16,6 +17,7 @@ public:
 	bool Initialise();
 	bool DoGameLoop();
 	void Quit();
+	void InitBalls();
 
 protected:
 	void Process(float deltaTime);
@@ -29,8 +31,26 @@ private:
 	Game(const Game& game);
 	Game& operator=(const Game& game);
 
+
 	// Member data:
 public:
+
+	// Ball struct
+	struct Ball
+	{
+		Sprite* sprite;
+		float x;
+		float y;
+		float vx;
+		float vy;
+		float scale;
+		float r, g, b;
+	};
+
+	std::vector<Ball> m_balls;
+
+	float bbWidth;
+	float bbHeight;
 
 protected:
 	static Game* sm_pInstance;
