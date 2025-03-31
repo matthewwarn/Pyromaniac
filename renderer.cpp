@@ -10,6 +10,8 @@
 #include "vertexarray.h"
 #include "sprite.h"
 #include "matrix4.h"
+#include "imgui/imgui_impl_sdl2.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 // Library includes:
 #include <SDL.h>
@@ -34,6 +36,10 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
+
 	delete m_pSpriteShader;
 	m_pSpriteShader = 0;
 
@@ -98,6 +104,11 @@ bool Renderer::Initialise(bool windowed, int width, int height)
 		initialised = m_pTextureManager->Initialise();
 	}
 
+	ImGui::CreateContext();
+	ImGui_ImplSDL2_InitForOpenGL(m_pWindow, m_glContext);
+	ImGui_ImplOpenGL3_Init();
+	ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+
 	return initialised;
 }
 
@@ -142,10 +153,17 @@ void Renderer::Clear()
 {
 	glClearColor(m_fClearRed, m_fClearGreen, m_fClearBlue, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame();
+	ImGui::NewFrame();
 }
 
 void Renderer::Present()
 {
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 	SDL_GL_SwapWindow(m_pWindow);
 }
 
