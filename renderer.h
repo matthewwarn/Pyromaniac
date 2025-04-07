@@ -7,10 +7,14 @@ class TextureManager;
 class Shader;
 class VertexArray;
 class Sprite;
+class AnimatedSprite;
+class Texture;
+
 struct SDL_Window;
 
 // Library includes:
 #include <SDL.h>
+#include "texture.h"
 
 class Renderer
 {
@@ -32,6 +36,11 @@ public:
 
 	Sprite* CreateSprite(const char* pcFilename);
 	void DrawSprite(Sprite& sprite);
+
+	AnimatedSprite* CreateAnimatedSprite(const char* pcFilename);
+	void DrawAnimatedSprite(AnimatedSprite& sprite, int frame);
+
+	void CreateStaticText(const char* pText, int pointsize);
 
 protected:
 	bool InitialiseOpenGL(int screenWidth, int screenHeight);

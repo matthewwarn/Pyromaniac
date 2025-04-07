@@ -11,6 +11,7 @@
 #include "imgui/imgui_impl_sdl2.h"
 #include "inputsystem.h"
 #include "xboxcontroller.h"
+#include "scenebouncingballs.h"
 
 // Static Members:
 Game* Game::sm_pInstance = 0;
@@ -32,16 +33,13 @@ void Game::DestroyInstance()
 	sm_pInstance = 0;
 }
 
-Game::Game() : m_pRenderer(0), m_pCheckerboard(0), m_bLooping(true)
+Game::Game() : m_pRenderer(0), m_bLooping(true)
 {
 
 }
 
 Game::~Game()
 {
-	delete m_pCheckerboard;
-	m_pCheckerboard = 0;
-
 	delete m_pRenderer;
 	m_pRenderer = 0;
 }
@@ -91,9 +89,11 @@ bool Game::Initialise()
 	pScene->Initialise(*m_pRenderer);
 	m_scenes.push_back(pScene);
 
-	m_iCurrentScene = 0;
+	pScene = new SceneBouncingBalls();
+	pScene->Initialise(*m_pRenderer);
+	m_scenes.push_back(pScene);
 
-	InitBalls();
+	m_iCurrentScene = 0;
 
 	return true;
 }
@@ -144,7 +144,6 @@ void Game::Process(float deltaTime)
 
 	m_scenes[m_iCurrentScene]->Process(deltaTime, *m_pInputSystem);
 
-
 	// Testing InputSystem
 	ButtonState leftArrowState = (m_pInputSystem->GetKeyState(SDL_SCANCODE_LEFT));
 	
@@ -185,38 +184,20 @@ void Game::Process(float deltaTime)
 		LogManager::GetInstance().Log("Xbox Left Pressed");
 	}
 
-	// Balls
-	for (auto& ball : m_balls) {
-		ball.x += ball.vx * deltaTime * 200;
-		ball.y += ball.vy * deltaTime * 200;
+	// Toggle Debug Window
+	ButtonState backspaceState = m_pInputSystem->GetKeyState(SDL_SCANCODE_BACKSPACE);
+	if (backspaceState == BS_PRESSED)
+	{
+		std::cout << "Backspace pressed" << std::endl;
+		ToggleDebugWindow();
+	}
 
-		float halfSize = (ball.sprite->GetWidth() * ball.scale) / 2.0f;
-		
-		int screenWidth = m_pRenderer->GetWidth();
-		int screenHeight = m_pRenderer->GetHeight();
-
-		if (ball.x - halfSize < 0) {
-			ball.x = halfSize; 
-			ball.vx = -ball.vx; 
-		}
-		
-		if (ball.x + halfSize > screenWidth) {
-			ball.x = screenWidth - halfSize;
-			ball.vx = -ball.vx;
-		}
-		
-		if (ball.y - halfSize < 0) {
-			ball.y = halfSize;
-			ball.vy = -ball.vy;
-		}
-
-		if (ball.y + halfSize > screenHeight) {
-			ball.y = screenHeight - halfSize;
-			ball.vy = -ball.vy;
-		}
-		
-		ball.sprite->SetX(ball.x);
-		ball.sprite->SetY(ball.y);
+	// Quit Game
+	ButtonState escapeState = m_pInputSystem->GetKeyState(SDL_SCANCODE_ESCAPE);
+	if (escapeState == BS_PRESSED)
+	{
+		std::cout << "Escape pressed" << std::endl;
+		Quit();
 	}
 }
 
@@ -229,11 +210,6 @@ void Game::Draw(Renderer& renderer)
 
 	//Draw Current Scene
 	m_scenes[m_iCurrentScene]->Draw(renderer);
-
-	// Draw balls
-	for (auto& ball : m_balls) {
-		ball.sprite->Draw(renderer);
-	}
 
 	DebugDraw();
 
@@ -255,71 +231,33 @@ Game::ProcessFrameCounting(float deltaTime)
 	}
 }
 
-void Game::InitBalls()
-{
-	for (int i = 0; i < 100; i++) {
-		// Load sprite
-		Sprite* ballSprite = m_pRenderer->CreateSprite("../assets/ball.png");
-
-		if (!ballSprite) {
-			LogManager::GetInstance().Log("Failed to load ball sprite!");
-		}
-
-		if (ballSprite) {
-
-			Ball ball;
-			ball.sprite = ballSprite;
-			ball.x = m_pRenderer->GetWidth() / 2.0f;
-			ball.y = m_pRenderer->GetHeight() / 2.0f;
-
-			// Random velocity
-			ball.vx = ((rand() % 200) - 100) / 100.0f;
-			ball.vy = ((rand() % 200) - 100) / 100.0f;
-
-			// Random scale
-			ball.scale = (rand() % 50) / 100.0f * 0.5f;
-			ball.sprite->SetScale(ball.scale);
-
-			// Random colour
-			ball.r = (rand() % 256) / 255.0f;
-			ball.g = (rand() % 256) / 255.0f;
-			ball.b = (rand() % 256) / 255.0f;
-			ball.sprite->SetRedTint(ball.r);
-			ball.sprite->SetGreenTint(ball.g);
-			ball.sprite->SetBlueTint(ball.b);
-
-			ball.sprite->SetX(ball.x);
-			ball.sprite->SetY(ball.y);
-
-			m_balls.push_back(ball);
-		}
-	}
-}
-
 void Game::DebugDraw
 ()
 {
-	bool open = true;
+	if (m_bShowDebugWindow) {
+		bool open = true;
 
-	ImGui::Begin("Debug Window", &open, ImGuiWindowFlags_MenuBar);
+		ImGui::Begin("Debug Window", &open, ImGuiWindowFlags_MenuBar);
 
-	ImGui::Text("COMP710 GP Framework (%s)", "2025, S1");
+		ImGui::Text("COMP710 GP Framework (%s)", "2025, S1");
 
-	if (ImGui::Button("Quit"))
-	{
-		Quit();
+		if (ImGui::Button("Quit"))
+		{
+			Quit();
+		}
+
+		ImGui::SliderInt("Active scene", &m_iCurrentScene, 0, m_scenes.size() - 1, "%d");
+
+		m_scenes[m_iCurrentScene]->DebugDraw();
+
+		ImGui::End();
 	}
-
-	ImGui::SliderInt("Active scene", &m_iCurrentScene, 0, m_scenes.size() - 1, "%d");
-
-	m_scenes[m_iCurrentScene]->DebugDraw();
-
-	ImGui::End();
 }
 
 void Game::ToggleDebugWindow
 ()
 {
+	std::cout << "Toggle Debug Window" << std::endl;
 	m_bShowDebugWindow = !m_bShowDebugWindow;
 	m_pInputSystem->ShowMouseCursor(m_bShowDebugWindow);
 }

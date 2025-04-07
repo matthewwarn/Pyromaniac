@@ -2,6 +2,10 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+// Library includes:
+#include <SDL.h>
+#include "SDL_ttf.h"
+
 class Texture
 {
 	// Member methods:
@@ -11,10 +15,14 @@ public:
 
 	bool Initialise(const char* pcFilename);
 
+	void LoadSurfaceIntoTexture(SDL_Surface* pSurface);
+
 	void SetActive();
 
 	int GetWidth() const;
 	int GetHeight() const;
+
+	void LoadTextTexture(const char* text, const char* fontname, int pointsize);
 
 protected:
 

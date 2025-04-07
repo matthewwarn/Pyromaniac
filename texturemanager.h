@@ -20,6 +20,8 @@ public:
 
 	Texture* GetTexture(const char* pcFilename);
 
+	void AddTexture(const char* key, Texture* pTexture);
+
 protected:
 
 private:
