@@ -7,15 +7,22 @@
 #include "sprite.h"
 #include "imgui/imgui.h"
 #include "inputsystem.h"
+#include "game.h"
+#include "logmanager.h"
 
 // Library includes:
 #include <cassert>
+#include "fmod.hpp"
 
-SceneCheckerboards::SceneCheckerboards()
-	: m_pCorners{ 0 }
+SceneCheckerboards::SceneCheckerboards(FMOD::System* pFMODSystem)
+	: m_pFMODSystem(pFMODSystem)
+	, m_pSound(0)
+	, m_pChannel(0)
+	, m_pCorners{ 0 }
 	, m_pCentre(0)
 	, m_angle(0.0f)
 	, m_rotationSpeed(90.0f)
+	, m_pAnimatedSprite(0)
 {
 
 }
@@ -29,6 +36,10 @@ SceneCheckerboards::~SceneCheckerboards()
 	}
 
 	delete m_pCentre;
+	m_pCentre = 0;
+
+	delete m_pAnimatedSprite;
+	m_pAnimatedSprite = 0;
 }
 
 bool
@@ -66,6 +77,25 @@ SceneCheckerboards::Initialise(Renderer& renderer)
 	m_pCorners[3]->SetY(SCREEN_HEIGHT - BOARD_HALF_HEIGHT);
 	m_pCorners[3]->SetRedTint(0.0f);
 
+
+	//Animated Sprite
+	m_pAnimatedSprite = renderer.CreateAnimatedSprite("../assets/anim8stripx2sheet.png");
+	
+	m_pAnimatedSprite->SetupFrames(64, 64);
+	m_pAnimatedSprite->SetFrameDuration(0.1f);
+	m_pAnimatedSprite->SetLooping(true);
+	m_pAnimatedSprite->Animate();
+	m_pAnimatedSprite->SetX(renderer.GetWidth() / 2);
+	m_pAnimatedSprite->SetY(renderer.GetHeight() / 2);
+	m_pAnimatedSprite->SetScale(3.0f);
+
+	// Initialize FMOD sound
+	FMOD_RESULT result = m_pFMODSystem->createSound("../assets/sound/boom.mp3", FMOD_DEFAULT, 0, &m_pSound);
+	if (result != FMOD_OK) {
+		LogManager::GetInstance().Log("FMOD sound loading failed!");
+		return false;
+	}
+
 	return true;
 }
 
@@ -80,6 +110,20 @@ SceneCheckerboards::Process(float deltaTime, InputSystem& inputSystem)
 
 	m_pCentre->SetAngle(m_angle);
 	m_pCentre->Process(deltaTime);
+
+	// Animated Sprite
+	m_pAnimatedSprite->Process(deltaTime);
+
+	// Checking for Left Click
+	int mouseButtonState = inputSystem.GetMouseButtonState(SDL_BUTTON_LEFT);
+
+	if (mouseButtonState == BS_PRESSED) {
+		if (m_pFMODSystem) {
+			m_pFMODSystem->playSound(m_pSound, 0, false, &m_pChannel);
+		}
+	}
+
+	m_pFMODSystem->update(); // Keeping FMOD updated
 }
 
 void
@@ -91,6 +135,9 @@ SceneCheckerboards::Draw(Renderer& renderer)
 	}
 
 	m_pCentre->Draw(renderer);
+
+	// Animated Sprite
+	m_pAnimatedSprite->Draw(renderer);
 }
 
 void SceneCheckerboards::DebugDraw

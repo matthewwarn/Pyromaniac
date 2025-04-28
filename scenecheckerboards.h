@@ -5,6 +5,8 @@
 
 // Local includes:
 #include "scene.h"
+#include "animatedsprite.h"
+#include "fmod.hpp"
 
 // Forward declarations:
 class Renderer;
@@ -15,7 +17,7 @@ class SceneCheckerboards : public Scene
 {
 // Member methods:
 public:
-SceneCheckerboards();
+SceneCheckerboards(FMOD::System* pFMODSystem);
 virtual ~SceneCheckerboards();
 
 virtual bool Initialise(Renderer& renderer);
@@ -26,8 +28,8 @@ virtual void Process(float deltaTime, InputSystem& inputSystem);
 protected:
 
 private:
-SceneCheckerboards(const SceneCheckerboards& sceneCheckerboards);
-SceneCheckerboards& operator=(const SceneCheckerboards& sceneCheckerboards);
+SceneCheckerboards(const SceneCheckerboards& sceneCheckerboards) = delete;
+SceneCheckerboards& operator=(const SceneCheckerboards& sceneCheckerboards) = delete;
 
 // Member data:
 public:
@@ -40,6 +42,11 @@ float m_angle;
 float m_rotationSpeed;
 
 private:
+AnimatedSprite* m_pAnimatedSprite;
+
+FMOD::System* m_pFMODSystem;
+FMOD::Sound* m_pSound;
+FMOD::Channel* m_pChannel;
 
 };
 

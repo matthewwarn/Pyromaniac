@@ -87,7 +87,7 @@ AnimatedSprite::SetupFrames(int fixedFrameWidth, int fixedFrameHeight)
 			
 			float quad[] =
 			{
-			0.0f + uOffset, vOffset + vFrameHeight,-0.5f, 0.5f, 0.0f,
+			-0.5f, 0.5f, 0.0f, 0.0f + uOffset, vOffset +vFrameHeight,
 			0.5f, 0.5f, 0.0f, uFrameWidth + uOffset, vOffset + vFrameHeight,
 			0.5f, -0.5f, 0.0f, uFrameWidth + uOffset, vOffset,
 			-0.5f, -0.5f, 0.0f, 0.0f + uOffset, vOffset

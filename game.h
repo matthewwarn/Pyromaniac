@@ -1,5 +1,6 @@
 // COMP710 GP Framework
 #include <vector>
+#include "fmod.hpp"
 
 #ifndef GAME_H
 #define GAME_H
@@ -82,8 +83,12 @@ protected:
 
 	bool m_bLooping;
 
-private:
+	FMOD::System* m_pFMODSystem;
+	FMOD::Sound* m_pSound;
+	FMOD::Channel* m_pChannel;
 
+private:
+	
 };
 
 #endif // GAME_H

@@ -12,9 +12,11 @@
 #include "inputsystem.h"
 #include "xboxcontroller.h"
 #include "scenebouncingballs.h"
+#include "fmod.hpp"
 
 // Static Members:
 Game* Game::sm_pInstance = 0;
+FMOD::System* m_pFMODSystem = nullptr;
 
 Game& Game::GetInstance()
 {
@@ -68,6 +70,9 @@ bool Game::Initialise()
 
 	m_pRenderer->SetClearColour(0, 255, 255);
 
+	// Initialise FMOD
+	FMOD::System_Create(&m_pFMODSystem);
+	m_pFMODSystem->init(512, FMOD_INIT_NORMAL, 0);
 
 	// Initialise Input System
 	m_pInputSystem= new InputSystem();
@@ -77,15 +82,8 @@ bool Game::Initialise()
 		return false;
 	}
 
-	// Checkerboard
-	m_pCheckerboard = m_pRenderer->CreateSprite("../assets/board8x8.png");
-	if (m_pCheckerboard) {
-		m_pCheckerboard->SetX(bbWidth / 2.0f);
-		m_pCheckerboard->SetY(bbHeight / 2.0f);
-	}
-
 	Scene* pScene = 0;
-	pScene = new SceneCheckerboards();
+	pScene = new SceneCheckerboards(m_pFMODSystem);
 	pScene->Initialise(*m_pRenderer);
 	m_scenes.push_back(pScene);
 
