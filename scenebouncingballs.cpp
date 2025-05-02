@@ -18,7 +18,6 @@ SceneBouncingBalls::SceneBouncingBalls()
 	: m_pBalls{ 0 }
 	, m_iShowCount(0)
 {
-
 }
 
 SceneBouncingBalls::~SceneBouncingBalls()

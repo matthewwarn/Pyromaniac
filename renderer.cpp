@@ -51,7 +51,9 @@ Renderer::~Renderer()
 	delete m_pTextureManager;
 	m_pTextureManager = 0;
 
-	SDL_DestroyWindow(m_pWindow);
+	//SDL_Destroy
+	
+	(m_pWindow);
 	IMG_Quit();
 	SDL_Quit();
 }
@@ -173,7 +175,6 @@ void Renderer::SetFullscreen(bool fullscreen)
 {
 	if (fullscreen)
 	{
-		// SDL_SetWindowFullscreen(m_pWindow, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_ALWAYS_ON_TOP);
 		SDL_SetWindowFullscreen(m_pWindow, SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_ALWAYS_ON_TOP);
 		SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 		SDL_SetWindowSize(m_pWindow, m_iWidth, m_iHeight);

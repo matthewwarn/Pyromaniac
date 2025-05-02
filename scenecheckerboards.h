@@ -43,6 +43,7 @@ float m_rotationSpeed;
 
 private:
 AnimatedSprite* m_pAnimatedSprite;
+AnimatedSprite* m_pAnimatedSprite2;
 
 FMOD::System* m_pFMODSystem;
 FMOD::Sound* m_pSound;

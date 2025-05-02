@@ -78,7 +78,7 @@ SceneCheckerboards::Initialise(Renderer& renderer)
 	m_pCorners[3]->SetRedTint(0.0f);
 
 
-	//Animated Sprite
+	//Animated Sprites
 	m_pAnimatedSprite = renderer.CreateAnimatedSprite("../assets/anim8stripx2sheet.png");
 	
 	m_pAnimatedSprite->SetupFrames(64, 64);
@@ -88,6 +88,16 @@ SceneCheckerboards::Initialise(Renderer& renderer)
 	m_pAnimatedSprite->SetX(renderer.GetWidth() / 2);
 	m_pAnimatedSprite->SetY(renderer.GetHeight() / 2);
 	m_pAnimatedSprite->SetScale(3.0f);
+
+	m_pAnimatedSprite2 = renderer.CreateAnimatedSprite("../assets/explosion.png");
+
+	m_pAnimatedSprite2->SetupFrames(64, 64);
+	m_pAnimatedSprite2->SetFrameDuration(0.1f);
+	m_pAnimatedSprite2->SetLooping(true);
+	m_pAnimatedSprite2->Animate();
+	m_pAnimatedSprite2->SetX(renderer.GetWidth() / 3);
+	m_pAnimatedSprite2->SetY(renderer.GetHeight() / 2);
+	m_pAnimatedSprite2->SetScale(3.0f);
 
 	// Initialize FMOD sound
 	FMOD_RESULT result = m_pFMODSystem->createSound("../assets/sound/boom.mp3", FMOD_DEFAULT, 0, &m_pSound);
@@ -113,6 +123,7 @@ SceneCheckerboards::Process(float deltaTime, InputSystem& inputSystem)
 
 	// Animated Sprite
 	m_pAnimatedSprite->Process(deltaTime);
+	m_pAnimatedSprite2->Process(deltaTime);
 
 	// Checking for Left Click
 	int mouseButtonState = inputSystem.GetMouseButtonState(SDL_BUTTON_LEFT);
@@ -138,6 +149,7 @@ SceneCheckerboards::Draw(Renderer& renderer)
 
 	// Animated Sprite
 	m_pAnimatedSprite->Draw(renderer);
+	m_pAnimatedSprite2->Draw(renderer);
 }
 
 void SceneCheckerboards::DebugDraw

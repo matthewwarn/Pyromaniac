@@ -156,10 +156,12 @@
     <ClCompile Include="logmanager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="matrix4.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="scenebouncingballs.cpp" />
     <ClCompile Include="scenecheckerboards.cpp" />
+    <ClCompile Include="scenemain.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="texture.cpp" />
@@ -171,7 +173,6 @@
   <ItemGroup>
     <ClInclude Include="animatedsprite.h" />
     <ClInclude Include="ball.h" />
-    <ClInclude Include="entity.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
@@ -186,10 +187,12 @@
     <ClInclude Include="inputsystem.h" />
     <ClInclude Include="logmanager.h" />
     <ClInclude Include="matrix4.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="scenebouncingballs.h" />
     <ClInclude Include="scenecheckerboards.h" />
+    <ClInclude Include="scenemain.h" />
     <ClInclude Include="SDL_ttf.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="sprite.h" />

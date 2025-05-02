@@ -74,3 +74,4 @@ Vector2::Reflect(const Vector2& vec, const Vector2& normal)
 {
 	return (vec - 2.0f * Vector2::DotProduct(vec, normal) * normal);
 }
+

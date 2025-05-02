@@ -7,12 +7,16 @@
 #include "logmanager.h"
 #include "sprite.h"
 #include <iostream>
-#include "scenecheckerboards.h"
 #include "imgui/imgui_impl_sdl2.h"
 #include "inputsystem.h"
 #include "xboxcontroller.h"
-#include "scenebouncingballs.h"
 #include "fmod.hpp"
+
+// Scene includes:
+#include "scenemain.h"
+#include "scenecheckerboards.h"
+#include "scenebouncingballs.h"
+
 
 // Static Members:
 Game* Game::sm_pInstance = 0;
@@ -22,7 +26,6 @@ Game& Game::GetInstance()
 {
 	if (sm_pInstance == 0)
 	{
-
 		sm_pInstance = new Game();
 	}
 
@@ -53,11 +56,11 @@ void Game::Quit()
 
 bool Game::Initialise()
 {
-	int bbWidth = 960;
-	int bbHeight = 720;
+	int bbWidth = 1920;
+	int bbHeight = 1080;
 
 	m_pRenderer = new Renderer();
-	if (!m_pRenderer->Initialise(true, bbWidth, bbHeight))
+	if (!m_pRenderer->Initialise(false, bbWidth, bbHeight))
 	{
 		LogManager::GetInstance().Log("Renderer failed to initialise!");
 		return false;
@@ -83,6 +86,11 @@ bool Game::Initialise()
 	}
 
 	Scene* pScene = 0;
+
+	pScene = new SceneMain();
+	pScene->Initialise(*m_pRenderer);
+	m_scenes.push_back(pScene);
+
 	pScene = new SceneCheckerboards(m_pFMODSystem);
 	pScene->Initialise(*m_pRenderer);
 	m_scenes.push_back(pScene);
@@ -90,6 +98,7 @@ bool Game::Initialise()
 	pScene = new SceneBouncingBalls();
 	pScene->Initialise(*m_pRenderer);
 	m_scenes.push_back(pScene);
+
 
 	m_iCurrentScene = 0;
 
