@@ -15,6 +15,13 @@ Player::~Player()
 
 bool Player::Initialise(Renderer& renderer, Texture& texture)
 {
+	m_screenWidth = renderer.GetWidth();
+	m_screenHeight = renderer.GetHeight();
+
+	m_spriteWidth = m_sprite.GetWidth();
+	m_spriteHeight = m_sprite.GetHeight();
+	m_sprite.SetScale(0.3f);
+
 	return m_sprite.Initialise(texture);
 }
 
@@ -30,7 +37,6 @@ void Player::Process(float deltaTime, InputSystem& inputSystem) {
 
 void Player::Movement(float deltaTime, InputSystem& inputSystem) {
 	Vector2 direction(0.0f, 0.0f);
-
 
 	// Storing control button states
 	ButtonState wState = inputSystem.GetKeyState(SDL_SCANCODE_W);
@@ -61,6 +67,13 @@ void Player::Movement(float deltaTime, InputSystem& inputSystem) {
 		direction.Normalise();
 		m_position += direction * m_speed * deltaTime;
 	}
+
+	// Clamp position to screen bounds
+
+	if (m_position.x < 0) m_position.x = 0;
+	if (m_position.y < 0) m_position.y = 0;
+	if (m_position.x > m_screenWidth - m_spriteWidth) m_position.x = m_screenWidth - m_spriteWidth;
+	if (m_position.y > m_screenHeight - m_spriteHeight) m_position.y = m_screenHeight - m_spriteHeight;
 }
 
 void Player::Draw(Renderer& renderer)
@@ -71,4 +84,8 @@ void Player::Draw(Renderer& renderer)
 Vector2& Player::GetPosition()
 {
 	return m_position;
+}
+
+void Player::SetPosition(const Vector2& pos) {
+	m_position = pos;
 }

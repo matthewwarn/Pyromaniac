@@ -20,10 +20,17 @@ public:
 	void Movement(float deltaTime, InputSystem& inputSystem);
 	Vector2& GetPosition();
 
+	void SetPosition(const Vector2& pos);
+
 private:
 	Sprite m_sprite;
 	Vector2 m_position;
 	float m_speed;
+
+	int m_screenWidth;
+	int m_screenHeight;
+	int m_spriteWidth;
+	int m_spriteHeight;
 };
 
 #endif // PLAYER_H

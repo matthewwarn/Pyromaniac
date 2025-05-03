@@ -46,8 +46,6 @@ SceneBouncingBalls::Initialise(Renderer& renderer)
 
 	m_iShowCount = 100;
 
-	std::cout << "DISPLAYING TEXT NOW?" << std::endl;
-
 	// Load static text textures into the Texture Manager...
 	renderer.CreateStaticText("Auckland University of Technology", 50);
 	

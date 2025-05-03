@@ -151,46 +151,6 @@ void Game::Process(float deltaTime)
 
 	m_scenes[m_iCurrentScene]->Process(deltaTime, *m_pInputSystem);
 
-	// Testing InputSystem
-	ButtonState leftArrowState = (m_pInputSystem->GetKeyState(SDL_SCANCODE_LEFT));
-	
-	if (leftArrowState == BS_PRESSED)
-	{
-		LogManager::GetInstance().Log("Left arrow key pressed.");
-		std::cout << "Left arrow key pressed." << std::endl;
-	}
-	else if (leftArrowState == BS_RELEASED)
-	{
-		LogManager::GetInstance().Log("Left arrow key released.");
-	}
-
-	int result = m_pInputSystem->GetMouseButtonState(SDL_BUTTON_LEFT);
-	
-	if (result == BS_PRESSED)
-	{
-		LogManager::GetInstance().Log("Left mouse button pressed.");
-		std::cout << "Left mouse button pressed." << std::endl;
-	}
-	else if (result == BS_RELEASED)
-	{
-		LogManager::GetInstance().Log("Left mouse button released.");
-	}
-
-	ButtonState xboxA = m_pInputSystem->GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_A);
-	ButtonState xboxX = m_pInputSystem->GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_X);
-	ButtonState xboxLeft = m_pInputSystem->GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-	ButtonState xboxRight = m_pInputSystem->GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-	
-	if (xboxA == BS_PRESSED)
-	{
-		LogManager::GetInstance().Log("Xbox A Pressed");
-	}
-	
-	if (xboxLeft == BS_PRESSED)
-	{
-		LogManager::GetInstance().Log("Xbox Left Pressed");
-	}
-
 	// Toggle Debug Window
 	ButtonState backspaceState = m_pInputSystem->GetKeyState(SDL_SCANCODE_BACKSPACE);
 	if (backspaceState == BS_PRESSED)

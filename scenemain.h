@@ -6,6 +6,11 @@
 #include "animatedsprite.h"
 #include "fmod.hpp"
 #include "player.h"
+#include "enemytype1.h"
+#include "texture.h"
+
+// Library includes:
+#include <vector>
 
 // Forward declarations:
 class Renderer;
@@ -23,9 +28,11 @@ public:
 	virtual void Draw(Renderer& renderer);
 	virtual void DebugDraw();
 	virtual void Process(float deltaTime, InputSystem& inputSystem);
+	void SpawnEnemy();
 
 protected:
 	Player m_player;
+
 private:
 	SceneMain(const SceneMain& sceneMain) = delete;
 	SceneMain& operator=(const SceneMain& sceneMain) = delete;
@@ -34,6 +41,12 @@ private:
 public:
 
 protected:
+	Renderer* m_pRenderer;
+
+	std::vector<Enemy*> m_enemies;
+	float m_enemySpawnTimer;
+	float m_enemySpawnInterval;
+	float m_gameTimer;
 
 private:
 
