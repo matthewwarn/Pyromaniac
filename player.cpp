@@ -21,6 +21,11 @@ bool Player::Initialise(Renderer& renderer, Texture& texture)
 	m_spriteWidth = m_sprite.GetWidth();
 	m_spriteHeight = m_sprite.GetHeight();
 	m_sprite.SetScale(0.3f);
+	m_sprite.SetGreenTint(1.0f);
+	m_sprite.SetRedTint(0.0f);
+	m_sprite.SetBlueTint(0.0f);
+
+	m_health = 1;
 
 	return m_sprite.Initialise(texture);
 }
@@ -53,12 +58,17 @@ void Player::Movement(float deltaTime, InputSystem& inputSystem) {
 	}
 	if (aState == BS_HELD || aState == BS_PRESSED) {
 		direction.x -= 1.0f;
+		m_facingDirection = Direction::Left;
 	}
 	if (dState == BS_HELD || dState == BS_PRESSED) {
 		direction.x += 1.0f;
+		m_facingDirection = Direction::Right;
 	}
 	if (kState == BS_HELD || kState == BS_PRESSED) {
-		std::cout << "Shooting!" << std::endl;
+		m_isAttacking = true;
+	}
+	else if (kState == BS_RELEASED) {
+		m_isAttacking = false;
 	}
 
 	// If player has pressed button to move, update player position
@@ -88,4 +98,40 @@ Vector2& Player::GetPosition()
 
 void Player::SetPosition(const Vector2& pos) {
 	m_position = pos;
+}
+
+int Player::GetHealth()
+{
+	return m_health;
+}
+
+void Player::TakeDamage()
+{
+	m_health--;
+}
+
+bool Player::IsAlive()
+{
+	if (m_health > 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+int Player::GetRadius()
+{
+	return m_spriteWidth / 2;
+}
+
+bool Player::IsAttacking()
+{
+	return m_isAttacking;
+}
+
+Player::Direction Player::GetFacingDirection() {
+	return m_facingDirection;
 }

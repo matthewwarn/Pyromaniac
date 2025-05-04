@@ -30,6 +30,9 @@ public:
 	virtual void Process(float deltaTime, InputSystem& inputSystem);
 	void SpawnEnemy();
 
+	void processEnemies(float deltaTime);
+	void handleAttackCollisions(float deltaTime);
+
 protected:
 	Player m_player;
 
@@ -49,7 +52,8 @@ protected:
 	float m_gameTimer;
 
 private:
-
+	// IMGui Variables
+	bool m_showHitbox = true; // Set to false for release
 };
 
 #endif // SCENEMAIN_H

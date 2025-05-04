@@ -23,6 +23,15 @@ public:
 
 	void SpawnOffScreen();
 
+	void TakeDamage(float amount);
+	bool IsAlive();
+
+	int GetRadius();
+	float GetSpeed();
+	
+	void SetSpeed(float newSpeed);
+	void SetTakingDamage(bool takingDamage);
+
 protected:
 	void MoveTowardsPlayer(const Vector2& playerPos, float deltaTime);
 
@@ -34,8 +43,11 @@ public:
 protected:
 	Vector2 m_position;
 	float m_speed;
+	float m_originalSpeed;
 	int m_health;
 	Sprite m_sprite;
+
+	bool m_takingDamage;
 
 	int m_screenWidth;
 	int m_screenHeight;

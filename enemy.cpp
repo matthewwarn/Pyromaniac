@@ -4,6 +4,9 @@
 // Library includes:
 #include <cstdlib>
 #include <ctime>
+#include <ostream>
+#include <iostream>
+#include <string>
 
 
 bool Enemy::Initialise(Renderer& renderer, Texture& texture, int screenWidth, int screenheight) {
@@ -14,13 +17,34 @@ bool Enemy::Initialise(Renderer& renderer, Texture& texture, int screenWidth, in
 }
 
 void Enemy::Process(float deltaTime, const Vector2& playerPos) {
-	
+	if (m_takingDamage) {
+		// Damage Indicator
+		m_sprite.SetRedTint(1.0f);
+		m_sprite.SetGreenTint(0.0f);
+		m_sprite.SetBlueTint(0.0f);
+
+		// Slow Enemy
+		m_speed = m_originalSpeed * 0.5f;
+	} 
+	else {
+		m_sprite.SetRedTint(1.0f);
+		m_sprite.SetGreenTint(1.0f);
+		m_sprite.SetBlueTint(1.0f);
+
+		// Reset speed
+		m_speed = m_originalSpeed;
+	}
 }
 
 void Enemy::Draw(Renderer& renderer) {
 	m_sprite.SetX(static_cast<int>(m_position.x));
 	m_sprite.SetY(static_cast<int>(m_position.y));
 	m_sprite.Draw(renderer);
+}
+
+Vector2& Enemy::GetPosition()
+{
+	return m_position;
 }
 
 void Enemy::SpawnOffScreen() {
@@ -56,4 +80,32 @@ void Enemy::MoveTowardsPlayer(const Vector2& playerPos, float deltaTime) {
 
 	m_position += direction * m_speed * deltaTime;
 
+}
+
+int Enemy::GetRadius() {
+	return m_sprite.GetWidth() / 2;
+}
+
+float Enemy::GetSpeed()
+{
+	return m_speed;
+}
+
+void Enemy::SetSpeed(float newSpeed)
+{
+	m_speed = newSpeed;
+}
+
+void Enemy::SetTakingDamage(bool takingDamage)
+{
+	m_takingDamage = takingDamage;
+}
+
+void Enemy::TakeDamage(float amount)
+{
+	m_health -= amount;
+}
+
+bool Enemy::IsAlive() {
+	return m_health > 0;
 }

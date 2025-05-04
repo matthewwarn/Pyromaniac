@@ -18,9 +18,27 @@ public:
 	void Process(float deltaTime, InputSystem& inputSystem);
 	void Draw(Renderer& renderer);
 	void Movement(float deltaTime, InputSystem& inputSystem);
+
+	void TakeDamage();
+	bool IsAlive();
+
+	bool IsAttacking();
+
+	enum class Direction { Left, Right };
+
 	Vector2& GetPosition();
+	Direction GetFacingDirection();
+	int GetRadius();
+	int GetHealth();
 
 	void SetPosition(const Vector2& pos);
+
+	// Member data:
+public:
+	int m_health;
+
+	Direction m_facingDirection;
+
 
 private:
 	Sprite m_sprite;
@@ -31,6 +49,8 @@ private:
 	int m_screenHeight;
 	int m_spriteWidth;
 	int m_spriteHeight;
+
+	bool m_isAttacking;
 };
 
 #endif // PLAYER_H
