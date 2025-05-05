@@ -205,7 +205,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="game\shader\sprite.frag" />
-    <None Include="game\shader\sprite.vert" />
+    <None Include="game\shaders\sprite.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="game\shaders\sprite.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

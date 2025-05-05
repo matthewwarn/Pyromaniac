@@ -15,6 +15,7 @@ struct SDL_Window;
 // Library includes:
 #include <SDL.h>
 #include "texture.h"
+#include <glew.h>
 
 class Renderer
 {
@@ -42,6 +43,9 @@ public:
 
 	void CreateStaticText(const char* pText, int pointsize);
 
+	void DrawRect(float x, float y, float width, float height, float r, float g, float b, float a);
+	GLuint CreateWhiteTexture();
+
 protected:
 	bool InitialiseOpenGL(int screenWidth, int screenHeight);
 	void SetFullscreen(bool fullscreen);
@@ -66,6 +70,8 @@ protected:
 	VertexArray* m_pSpriteVertexData;
 	int m_iWidth;
 	int m_iHeight;
+
+	Texture* m_pWhiteTexture;
 
 	float m_fClearRed;
 	float m_fClearGreen;

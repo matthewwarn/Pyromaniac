@@ -10,6 +10,7 @@
 #include <SDL_image.h>
 #include <cassert>
 #include "glew.h"
+#include <iostream>
 
 Texture::Texture()
 	: m_uiTextureId(0)
@@ -148,4 +149,9 @@ Texture::LoadSurfaceIntoTexture(SDL_Surface* pSurface)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
+}
+
+void Texture::SetID(GLuint id)
+{
+	m_uiTextureId = id;
 }

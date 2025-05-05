@@ -12,7 +12,6 @@
 #include "enemytype1.h"
 #include "enemy.h"
 
-
 // Library includes:
 #include <cassert>
 #include "fmod.hpp"
@@ -21,7 +20,7 @@
 
 SceneMain::SceneMain()
 	: m_enemySpawnTimer(0.0f)
-	, m_enemySpawnInterval(0.2f)
+	, m_enemySpawnInterval(1.0f)
 	, m_gameTimer(0.0f)
 {
 }
@@ -79,14 +78,15 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 void
 SceneMain::Draw(Renderer& renderer)
 {
-	m_player.Draw(renderer);
+	m_player.DrawSprite(renderer);
 	
 	for (auto& enemy : m_enemies) {
 		enemy->Draw(renderer);
 	}
 
+
 	// Display Attack Hitbox
-	if (m_showHitbox && m_player.IsAttacking()) {
+	if (m_showHitbox && m_player.CanAttack()) {
 		Vector2 playerPos = m_player.GetPosition();
 		bool facingRight = (m_player.GetFacingDirection() == Player::Direction::Right);
 
@@ -110,6 +110,8 @@ SceneMain::Draw(Renderer& renderer)
 
 		drawList->AddRectFilled(topLeft, bottomRight, IM_COL32(255, 0, 0, 180));
 	}
+
+	m_player.DrawHeatBar(renderer);
 }
 
 void SceneMain::DebugDraw
@@ -173,42 +175,42 @@ void SceneMain::processEnemies(float deltaTime) {
 }
 
 void SceneMain::handleAttackCollisions(float deltaTime) {
-	if (m_player.IsAttacking()) {
-		Vector2 playerPos = m_player.GetPosition();
-		bool facingRight = (m_player.GetFacingDirection() == Player::Direction::Right);
+	Vector2 playerPos = m_player.GetPosition();
+	bool facingRight = (m_player.GetFacingDirection() == Player::Direction::Right);
 
-		float attackRange = 350.0f;
-		float attackWidth = 75.0f;
+	float attackRange = 350.0f;
+	float attackWidth = 75.0f;
 
-		// Flip attack if facing left
-		float offsetX = 0.0f;
-		if (facingRight) {
-			offsetX = m_player.GetRadius();
-		}
-		else {
-			offsetX = -(attackRange + m_player.GetRadius());
-		}
+	// Flip attack if facing left
+	float offsetX = 0.0f;
+	if (facingRight) {
+		offsetX = m_player.GetRadius();
+	}
+	else {
+		offsetX = -(attackRange + m_player.GetRadius());
+	}
 
-		Vector2 attackPos(playerPos.x + offsetX, playerPos.y - (attackWidth / 2));
-		float attackLeft = attackPos.x;
-		float attackRight = attackPos.x + attackRange;
-		float attackTop = attackPos.y;
-		float attackBottom = attackPos.y + attackWidth;
+	Vector2 attackPos(playerPos.x + offsetX, playerPos.y - (attackWidth / 2));
+	float attackLeft = attackPos.x;
+	float attackRight = attackPos.x + attackRange;
+	float attackTop = attackPos.y;
+	float attackBottom = attackPos.y + attackWidth;
 
-		for (Enemy* enemy : m_enemies) {
-			Vector2 enemyPos = enemy->GetPosition();
-			float enemyRadius = enemy->GetRadius();
+	for (Enemy* enemy : m_enemies) {
+		Vector2 enemyPos = enemy->GetPosition();
+		float enemyRadius = enemy->GetRadius();
 
-			// Check if enemy is within attack range
-			if (enemyPos.x + enemyRadius > attackLeft && enemyPos.x - enemyRadius < attackRight &&
-				enemyPos.y + enemyRadius > attackTop && enemyPos.y - enemyRadius < attackBottom) 
-			{
+		// Check if enemy is within attack range
+		if (enemyPos.x + enemyRadius > attackLeft && enemyPos.x - enemyRadius < attackRight &&
+			enemyPos.y + enemyRadius > attackTop && enemyPos.y - enemyRadius < attackBottom)
+		{
+			if (m_player.CanAttack()) {
 				enemy->TakeDamage(60 * deltaTime); // Take 60 damage per second
 				enemy->SetTakingDamage(true); // Slows enemy and tints red	
 			}
-			else {
-				enemy->SetTakingDamage(false); // Reset speed if not hit
-			}
+		}
+		else {
+			enemy->SetTakingDamage(false); // Reset speed if not hit
 		}
 	}
 }

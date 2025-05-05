@@ -113,6 +113,9 @@ bool Renderer::Initialise(bool windowed, int width, int height)
 	ImGui_ImplOpenGL3_Init();
 	ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 
+	m_pWhiteTexture = new Texture();
+	m_pWhiteTexture->SetID(CreateWhiteTexture());
+
 	return initialised;
 }
 
@@ -253,6 +256,11 @@ bool Renderer::SetupSpriteShader()
 	return loaded;
 }
 
+Renderer& Renderer::operator=(const Renderer& renderer)
+{
+	return *this;
+}
+
 void Renderer::DrawSprite(Sprite& sprite)
 {
 	m_pSpriteShader->SetActive();
@@ -351,4 +359,47 @@ Renderer::CreateStaticText(const char* pText, int pointsize)
 	Texture* pTexture = new Texture();
 	pTexture->LoadTextTexture(pText, "ArianaVioleta-dz2K.ttf", pointsize);
 	m_pTextureManager->AddTexture(pText, pTexture);
+}
+
+void Renderer::DrawRect(float x, float y, float width, float height,
+	float r, float g, float b, float a)
+{
+	// Set up a basic world transform
+	Matrix4 world;
+	SetIdentity(world);
+	world.m[0][0] = width;
+	world.m[1][1] = height;
+	world.m[3][0] = x;
+	world.m[3][1] = y;
+
+	m_pSpriteShader->SetMatrixUniform("uWorldTransform", world);
+	m_pWhiteTexture->SetActive();
+
+	Matrix4 orthoViewProj;
+	CreateOrthoProjection(orthoViewProj, static_cast<float>(m_iWidth), static_cast<float>(m_iHeight));
+	m_pSpriteShader->SetMatrixUniform("uViewProj", orthoViewProj);
+
+	m_pSpriteShader->SetVector4Uniform("colour", r, g, b, a);
+
+	m_pSpriteVertexData->SetActive();
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
+GLuint Renderer::CreateWhiteTexture()
+{
+	GLuint texID;
+	unsigned char whitePixel[4] = { 255, 255, 255, 255 }; // RGBA white
+
+	glGenTextures(1, &texID);
+	glBindTexture(GL_TEXTURE_2D, texID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, whitePixel);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	return texID;
 }

@@ -16,13 +16,15 @@ public:
 	~Player();
 	bool Initialise(Renderer& renderer, Texture& texture);
 	void Process(float deltaTime, InputSystem& inputSystem);
-	void Draw(Renderer& renderer);
+	void DrawSprite(Renderer& renderer);
 	void Movement(float deltaTime, InputSystem& inputSystem);
+	
 
 	void TakeDamage();
 	bool IsAlive();
 
-	bool IsAttacking();
+	bool CanAttack();
+	void DrawHeatBar(Renderer& renderer);
 
 	enum class Direction { Left, Right };
 
@@ -33,12 +35,22 @@ public:
 
 	void SetPosition(const Vector2& pos);
 
+	void HandleFlamethrower(float deltaTime);
+
 	// Member data:
 public:
 	int m_health;
 
 	Direction m_facingDirection;
 
+	float m_weaponHeat = 0.0f;
+	float m_heatIncreaseRate = 50.0f;
+	float m_heatDecreaseRate = 25.0f;
+	float m_maxHeat = 250.0f;
+
+	bool m_isOverheated = false;
+	float m_overheatCooldown = 5.0f;
+	float m_currentOverheatCooldown = 0.0f;
 
 private:
 	Sprite m_sprite;

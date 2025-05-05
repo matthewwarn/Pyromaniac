@@ -2,6 +2,7 @@
 #include "inputsystem.h"
 #include "renderer.h"
 #include <iostream>
+#include <glew.h>
 
 Player::Player()
 	: m_position(0.0f, 0.0f)
@@ -33,6 +34,9 @@ bool Player::Initialise(Renderer& renderer, Texture& texture)
 void Player::Process(float deltaTime, InputSystem& inputSystem) {
 	// Handle movement
 	Movement(deltaTime, inputSystem);
+
+	// Handle weapon heat
+	HandleFlamethrower(deltaTime);
 
 	// Update position
 	m_sprite.SetX(static_cast<int>(m_position.x));
@@ -86,7 +90,7 @@ void Player::Movement(float deltaTime, InputSystem& inputSystem) {
 	if (m_position.y > m_screenHeight - m_spriteHeight) m_position.y = m_screenHeight - m_spriteHeight;
 }
 
-void Player::Draw(Renderer& renderer)
+void Player::DrawSprite(Renderer& renderer)
 {
 	m_sprite.Draw(renderer);
 }
@@ -127,11 +131,62 @@ int Player::GetRadius()
 	return m_spriteWidth / 2;
 }
 
-bool Player::IsAttacking()
+bool Player::CanAttack()
 {
-	return m_isAttacking;
+	if (m_isAttacking == true && m_isOverheated == false) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 Player::Direction Player::GetFacingDirection() {
 	return m_facingDirection;
+}
+
+void Player::HandleFlamethrower(float deltaTime) {
+	if (m_isOverheated) {
+		m_currentOverheatCooldown -= deltaTime;
+		if (m_currentOverheatCooldown <= 0.0f) {
+			m_isOverheated = false;
+			m_weaponHeat = 0.0f;
+		}
+	}
+	else {
+		if (m_isAttacking) {
+			m_weaponHeat += m_heatIncreaseRate * deltaTime;
+
+			if (m_weaponHeat >= m_maxHeat) {
+				m_isOverheated = true;
+				m_currentOverheatCooldown = m_overheatCooldown;
+			}
+		}
+		else {
+			m_weaponHeat -= m_heatDecreaseRate * deltaTime;
+			if (m_weaponHeat < 0.0f) {
+				m_weaponHeat = 0.0f;
+			}
+		}
+	}
+}
+
+void Player::DrawHeatBar(Renderer& renderer) {
+	int barWidth = 40;
+	int barHeight = 200;
+	int barX = m_screenWidth - 40;
+	int barY = 120;
+
+	float heatPercentage = m_weaponHeat / m_maxHeat;
+	int filledHeight = static_cast<int>(barHeight * heatPercentage);
+	int bottomY = barHeight;
+
+	renderer.DrawRect(barX, barY, barWidth, barHeight, 0.0f, 0.0f, 0.0f, 1.0f); // Draw empty bar
+
+	if (m_isOverheated) {
+		renderer.DrawRect(barX, barY, barWidth, filledHeight, 1.0f, 0.0f, 0.0, 1.0f); // Draw red for overheated
+	}
+	else {
+		renderer.DrawRect(barX, barY, barWidth, filledHeight, 1.0f, 0.5f, 0.1f, 1.0f); // Draw filled portion
+	}
 }

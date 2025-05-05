@@ -5,6 +5,7 @@
 // Library includes:
 #include <SDL.h>
 #include "SDL_ttf.h"
+#include <glew.h>
 
 class Texture
 {
@@ -16,6 +17,8 @@ public:
 	bool Initialise(const char* pcFilename);
 
 	void LoadSurfaceIntoTexture(SDL_Surface* pSurface);
+
+	void SetID(GLuint id);
 
 	void SetActive();
 
