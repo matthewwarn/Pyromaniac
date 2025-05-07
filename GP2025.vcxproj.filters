@@ -105,6 +105,12 @@
     <ClCompile Include="enemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="powerupzerooverheat.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="powerupgenocide.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logmanager.h">
@@ -201,6 +207,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="enemytype1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="powerup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="powerupinvincibility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="powerupgenocide.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

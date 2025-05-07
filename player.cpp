@@ -27,6 +27,8 @@ bool Player::Initialise(Renderer& renderer, Texture& texture)
 	m_sprite.SetBlueTint(0.0f);
 
 	m_health = 1;
+	m_isInvincible = false;
+	m_zeroOverheatActive = false;
 
 	return m_sprite.Initialise(texture);
 }
@@ -37,6 +39,9 @@ void Player::Process(float deltaTime, InputSystem& inputSystem) {
 
 	// Handle weapon heat
 	HandleFlamethrower(deltaTime);
+
+	// Handle powerups e.g. Invincibility, No Overheat
+	HandlePowerups(deltaTime);
 
 	// Update position
 	m_sprite.SetX(static_cast<int>(m_position.x));
@@ -111,7 +116,12 @@ int Player::GetHealth()
 
 void Player::TakeDamage()
 {
-	m_health--;
+	if (m_isInvincible) {
+		return; // Don't take damage if invincible
+	}
+	else {
+		m_health--;
+	}
 }
 
 bool Player::IsAlive()
@@ -145,6 +155,11 @@ Player::Direction Player::GetFacingDirection() {
 	return m_facingDirection;
 }
 
+void Player::SetZeroOverheat()
+{
+	m_zeroOverheatActive = true;
+}
+
 void Player::HandleFlamethrower(float deltaTime) {
 	if (m_isOverheated) {
 		m_currentOverheatCooldown -= deltaTime;
@@ -172,21 +187,63 @@ void Player::HandleFlamethrower(float deltaTime) {
 }
 
 void Player::DrawHeatBar(Renderer& renderer) {
-	int barWidth = 40;
-	int barHeight = 200;
-	int barX = m_screenWidth - 40;
-	int barY = 120;
+	int barWidth = 50;
+	int barHeight = m_screenHeight * 0.8;
+	int barX = m_screenWidth - barWidth;
+	int barY = m_screenHeight / 2;
 
 	float heatPercentage = m_weaponHeat / m_maxHeat;
 	int filledHeight = static_cast<int>(barHeight * heatPercentage);
 	int bottomY = barHeight;
 
-	renderer.DrawRect(barX, barY, barWidth, barHeight, 0.0f, 0.0f, 0.0f, 1.0f); // Draw empty bar
+	renderer.DrawRect(barX, barY, barWidth, barHeight, 0.0f, 0.0f, 0.0f, 0.7f); // Draw empty bar
 
-	if (m_isOverheated) {
-		renderer.DrawRect(barX, barY, barWidth, filledHeight, 1.0f, 0.0f, 0.0, 1.0f); // Draw red for overheated
+	if (m_zeroOverheatActive) {
+		renderer.DrawRect(barX, barY, barWidth, barHeight, 0.6f, 0.72f, 0.925f, 0.7f); // Draw blue for zero overheat
+	}
+	else if (m_isOverheated) {
+		renderer.DrawRect(barX, barY, barWidth, barHeight, 1.0f, 0.0f, 0.0, 0.7f); // Draw red for overheated
 	}
 	else {
-		renderer.DrawRect(barX, barY, barWidth, filledHeight, 1.0f, 0.5f, 0.1f, 1.0f); // Draw filled portion
+		renderer.DrawRect(barX, barY, barWidth, filledHeight, 1.0f, 0.5f, 0.1f, 0.7f); // Draw filled portion
+	}
+	
+}
+
+void Player::SetInvincible() {
+	m_isInvincible = true;
+}
+
+void Player::HandlePowerups(float deltaTime) {
+	// Invincibility
+	if (m_isInvincible) {
+		m_invincibleTimer -= deltaTime; // Decrease timer
+
+		// Visual Indicator
+		m_sprite.SetRedTint(0.0f);
+		m_sprite.SetGreenTint(1.0f);
+		m_sprite.SetBlueTint(1.0f);
+
+		if (m_invincibleTimer <= 0.0f) {
+			m_isInvincible = false;
+			m_invincibleTimer = 10.0f; // Reset timer
+		}
+	}
+	else {
+		// Set sprite back to normal
+		m_sprite.SetRedTint(0.0f);
+		m_sprite.SetGreenTint(1.0f);
+		m_sprite.SetBlueTint(0.0f);
+	}
+
+	// Zero Overheat
+	if (m_zeroOverheatActive) {
+		m_zeroOverheatTimer -= deltaTime;
+		m_weaponHeat = 0.0f; // Keep heat at 0
+
+		if (m_zeroOverheatTimer <= 0.0f) {
+			m_zeroOverheatActive = false;
+			m_zeroOverheatTimer = 10.0f; // Reset timer
+		}
 	}
 }

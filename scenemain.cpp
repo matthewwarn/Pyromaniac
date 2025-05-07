@@ -17,16 +17,22 @@
 #include "fmod.hpp"
 #include <ctime>
 #include <iostream>
+#include <cstdlib>
 
 SceneMain::SceneMain()
 	: m_enemySpawnTimer(0.0f)
 	, m_enemySpawnInterval(1.0f)
 	, m_gameTimer(0.0f)
+	, m_powerupSpawnTimer(30.0f) // Default: 30
 {
 }
 
 SceneMain::~SceneMain() 
 {
+	for (Powerup* powerup : m_powerups) {
+		delete powerup;
+	}
+	m_powerups.clear();
 }
 
 bool
@@ -34,17 +40,15 @@ SceneMain::Initialise(Renderer& renderer)
 {
 	m_pRenderer = &renderer;
 
-	srand(static_cast<unsigned int>(time(0)));
-
 	// Load Player Texture
 	static Texture* playerTexture = new Texture();
 	playerTexture->Initialise("../assets/ball.png"); // Replace later
 	m_player.Initialise(renderer, *playerTexture);
 
 	// Spawn in center
-	int screenWidth = renderer.GetWidth();
-	int screenHeight = renderer.GetHeight();
-	Vector2 startPos(screenWidth / 2, screenHeight / 2);
+	m_screenWidth = renderer.GetWidth();
+	m_screenHeight = renderer.GetHeight();
+	Vector2 startPos(m_screenWidth / 2, m_screenHeight / 2);
 	m_player.SetPosition(startPos);
 
 	return true;
@@ -68,6 +72,8 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 
 	handleAttackCollisions(deltaTime);
 
+	processPowerups(deltaTime);
+
 	// Check if player is alive
 	if (!m_player.IsAlive()) {
 		LogManager::GetInstance().Log("Player is dead!");
@@ -83,6 +89,9 @@ SceneMain::Draw(Renderer& renderer)
 	for (auto& enemy : m_enemies) {
 		enemy->Draw(renderer);
 	}
+
+	for (auto& p : m_powerups)
+		p->Draw(renderer);
 
 
 	// Display Attack Hitbox
@@ -157,6 +166,10 @@ void SceneMain::processEnemies(float deltaTime) {
 
 		if (distanceSq < (combinedRadius * combinedRadius)) {
 			m_player.TakeDamage();
+
+			if(m_player.GetHealth() == 0) {
+				Game::GetInstance().Quit();
+			}
 			break; // Only Damage once per frame (for if I increase health later)
 		}
 	}
@@ -190,6 +203,7 @@ void SceneMain::handleAttackCollisions(float deltaTime) {
 		offsetX = -(attackRange + m_player.GetRadius());
 	}
 
+	// Store attack area
 	Vector2 attackPos(playerPos.x + offsetX, playerPos.y - (attackWidth / 2));
 	float attackLeft = attackPos.x;
 	float attackRight = attackPos.x + attackRange;
@@ -200,7 +214,7 @@ void SceneMain::handleAttackCollisions(float deltaTime) {
 		Vector2 enemyPos = enemy->GetPosition();
 		float enemyRadius = enemy->GetRadius();
 
-		// Check if enemy is within attack range
+		// Check if enemy is within attack area
 		if (enemyPos.x + enemyRadius > attackLeft && enemyPos.x - enemyRadius < attackRight &&
 			enemyPos.y + enemyRadius > attackTop && enemyPos.y - enemyRadius < attackBottom)
 		{
@@ -214,3 +228,75 @@ void SceneMain::handleAttackCollisions(float deltaTime) {
 		}
 	}
 }
+
+void SceneMain::processPowerups(float deltaTime)
+{
+	m_powerupSpawnTimer -= deltaTime;
+	if (m_powerupSpawnTimer <= 0.0f) {
+		Vector2 pos(
+			static_cast<float>(rand() % (m_screenWidth - 50 + 1) + 50),
+			static_cast<float>(rand() % (m_screenHeight - 50 + 1) + 50)
+		);
+
+		// Determine type of powerup
+		// 1 = Invincibility
+		// 2 = No Overheat
+		// 3 = Kill All Enemies
+		int type = rand() % (3 - 1 + 1) + 1; // (max - min + 1) + min
+
+		switch (type) {
+		case 1:
+			m_powerups.push_back(new PowerupInvincibility(pos));
+			break;
+		
+		case 2:
+			m_powerups.push_back(new PowerupZeroOverheat(pos));
+			break;
+		case 3:
+			m_powerups.push_back(new PowerupGenocide(pos));
+			break;
+		}
+
+		m_powerupSpawnTimer = rand() % (60 - 40 + 1) + 40; // Random spawn time between 40 and 60 seconds
+	}
+
+	// Despawn powerups
+	for (auto it = m_powerups.begin(); it != m_powerups.end(); ) {
+		(*it)->Process(deltaTime);  // Update the lifetime
+
+		// If the powerup has expired, delete it
+		if ((*it)->IsExpired()) {
+			delete* it;
+			it = m_powerups.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
+
+	// Player pickup detection
+	for (auto it = m_powerups.begin(); it != m_powerups.end(); ) {
+		Vector2 powerupPos = (*it)->GetPosition();
+		float dx = powerupPos.x - m_player.GetPosition().x;
+		float dy = powerupPos.y - m_player.GetPosition().y;
+		float distanceSq = dx * dx + dy * dy;
+
+		float combinedRadius = (*it)->GetRadius() + m_player.GetRadius();
+
+		if (distanceSq < (combinedRadius * combinedRadius)) {
+			(*it)->ApplyPowerup(m_player, *this);
+			delete* it; // Manual delete
+			it = m_powerups.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
+}
+
+void SceneMain::KillAllEnemies() {
+	for (Enemy* enemy : m_enemies) {
+		enemy->TakeDamage(enemy->GetHealth()); // Kill enemy
+	}
+}
+

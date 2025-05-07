@@ -18,7 +18,6 @@ public:
 	}
 
 	void Process(float deltaTime, const Vector2& playerPos) override {
-		MoveTowardsPlayer(playerPos, deltaTime);
 		Enemy::Process(deltaTime, playerPos);
 	}
 };

@@ -34,6 +34,8 @@ void Enemy::Process(float deltaTime, const Vector2& playerPos) {
 		// Reset speed
 		m_speed = m_originalSpeed;
 	}
+
+	MoveTowardsPlayer(playerPos, deltaTime);
 }
 
 void Enemy::Draw(Renderer& renderer) {
@@ -79,7 +81,6 @@ void Enemy::MoveTowardsPlayer(const Vector2& playerPos, float deltaTime) {
 	direction.Normalise();
 
 	m_position += direction * m_speed * deltaTime;
-
 }
 
 int Enemy::GetRadius() {
@@ -89,6 +90,10 @@ int Enemy::GetRadius() {
 float Enemy::GetSpeed()
 {
 	return m_speed;
+}
+
+int Enemy::GetHealth() {
+	return m_health;
 }
 
 void Enemy::SetSpeed(float newSpeed)

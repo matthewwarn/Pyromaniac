@@ -8,9 +8,13 @@
 #include "player.h"
 #include "enemytype1.h"
 #include "texture.h"
+#include "powerupinvincibility.h"
+#include "powerupzerooverheat.h"
+#include "powerupgenocide.h"
 
 // Library includes:
 #include <vector>
+#include <memory>
 
 // Forward declarations:
 class Renderer;
@@ -33,6 +37,10 @@ public:
 	void processEnemies(float deltaTime);
 	void handleAttackCollisions(float deltaTime);
 
+	void processPowerups(float deltaTime);
+
+	void KillAllEnemies();
+
 protected:
 	Player m_player;
 
@@ -50,6 +58,12 @@ protected:
 	float m_enemySpawnTimer;
 	float m_enemySpawnInterval;
 	float m_gameTimer;
+
+	int m_screenWidth;
+	int m_screenHeight;
+
+	std::vector<Powerup*> m_powerups;
+	float m_powerupSpawnTimer;
 
 private:
 	// IMGui Variables

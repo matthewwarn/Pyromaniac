@@ -28,6 +28,7 @@ public:
 
 	int GetRadius();
 	float GetSpeed();
+	int GetHealth();
 	
 	void SetSpeed(float newSpeed);
 	void SetTakingDamage(bool takingDamage);

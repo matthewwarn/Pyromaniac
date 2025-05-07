@@ -47,6 +47,11 @@ Game::~Game()
 {
 	delete m_pRenderer;
 	m_pRenderer = 0;
+
+	for (Scene* scene : m_scenes){
+		delete scene;
+	}
+	m_scenes.clear();
 }
 
 void Game::Quit()
@@ -56,11 +61,11 @@ void Game::Quit()
 
 bool Game::Initialise()
 {
-	int bbWidth = 1920;
-	int bbHeight = 1080;
+	int bbWidth = 720;
+	int bbHeight = 480;
 
 	m_pRenderer = new Renderer();
-	if (!m_pRenderer->Initialise(false, bbWidth, bbHeight))
+	if (!m_pRenderer->Initialise(true, bbWidth, bbHeight))
 	{
 		LogManager::GetInstance().Log("Renderer failed to initialise!");
 		return false;
@@ -85,6 +90,8 @@ bool Game::Initialise()
 		return false;
 	}
 
+	srand(static_cast<unsigned int>(time(0)));
+
 	Scene* pScene = 0;
 
 	pScene = new SceneMain();
@@ -98,7 +105,6 @@ bool Game::Initialise()
 	pScene = new SceneBouncingBalls();
 	pScene->Initialise(*m_pRenderer);
 	m_scenes.push_back(pScene);
-
 
 	m_iCurrentScene = 0;
 

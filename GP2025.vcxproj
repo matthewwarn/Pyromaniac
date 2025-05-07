@@ -158,6 +158,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="matrix4.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="powerupgenocide.cpp" />
+    <ClCompile Include="powerupzerooverheat.h" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="scenebouncingballs.cpp" />
@@ -191,6 +193,9 @@
     <ClInclude Include="logmanager.h" />
     <ClInclude Include="matrix4.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="powerup.h" />
+    <ClInclude Include="powerupgenocide.h" />
+    <ClInclude Include="powerupinvincibility.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="scenebouncingballs.h" />
