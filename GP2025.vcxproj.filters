@@ -226,5 +226,7 @@
     <None Include="game\shaders\sprite.vert">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
 </Project>

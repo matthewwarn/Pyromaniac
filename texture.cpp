@@ -22,7 +22,9 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-	glDeleteTextures(1, &m_uiTextureId);
+	if (m_uiTextureId != 0) {
+		glDeleteTextures(1, &m_uiTextureId);
+	}
 }
 
 bool Texture::Initialise(const char* pcFilename)
@@ -90,9 +92,15 @@ int Texture::GetHeight() const
 void
 Texture::LoadTextTexture(const char* text, const char* fontname, int pointsize)
 {
+	static bool ttfInitialised = false;
+
 	TTF_Font* pFont = 0;
-	TTF_Init();
 	
+	if (!ttfInitialised) {
+		TTF_Init();
+		ttfInitialised = true;
+	}
+
 	if (pFont == 0)
 	{
 		pFont = TTF_OpenFont(fontname, pointsize);
@@ -114,6 +122,7 @@ Texture::LoadTextTexture(const char* text, const char* fontname, int pointsize)
 	LoadSurfaceIntoTexture(pSurface);
 	
 	TTF_CloseFont(pFont);
+	TTF_Quit();
 	pFont = 0;
 }
 

@@ -8,6 +8,19 @@
 #include <iostream>
 #include <string>
 
+Enemy::Enemy()
+	: m_position(0.0f, 0.0f)
+	, m_speed(0.0f)
+	, m_originalSpeed(0.0f)
+	, m_health(100)
+	, m_takingDamage(false)
+	, m_screenWidth(0)
+	, m_screenHeight(0) {
+}
+
+Enemy::~Enemy() {
+	
+}
 
 bool Enemy::Initialise(Renderer& renderer, Texture& texture, int screenWidth, int screenheight) {
 	m_screenWidth = screenWidth;

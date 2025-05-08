@@ -13,7 +13,8 @@ class Sprite;
 class Enemy {
 	// Member methods:
 public:
-	virtual ~Enemy() {}
+	Enemy();
+	virtual ~Enemy();
 
 	virtual bool Initialise(Renderer& renderer, Texture& texture, int screenWidth, int screenHeight);
 	virtual void Process(float deltaTime, const Vector2& playerPos);

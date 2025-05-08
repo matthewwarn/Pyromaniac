@@ -33,6 +33,11 @@ SceneMain::~SceneMain()
 		delete powerup;
 	}
 	m_powerups.clear();
+
+	for (Enemy* enemy : m_enemies) {
+		delete enemy;
+	}
+	m_enemies.clear();
 }
 
 bool
@@ -44,6 +49,15 @@ SceneMain::Initialise(Renderer& renderer)
 	static Texture* playerTexture = new Texture();
 	playerTexture->Initialise("../assets/ball.png"); // Replace later
 	m_player.Initialise(renderer, *playerTexture);
+
+	// Load Enemy Textures
+	static Texture* enemyTexture = new Texture();
+	if (!enemyTexture->Initialise("../assets/ball.png"))
+	{
+		LogManager::GetInstance().Log("Failed to load enemy texture!");
+		return false;
+	}
+	m_enemy1Texture = enemyTexture;
 
 	// Spawn in center
 	m_screenWidth = renderer.GetWidth();
@@ -142,14 +156,14 @@ void SceneMain::SpawnEnemy()
 	// Instantiate a new enemy
 	EnemyType1* newEnemy = new EnemyType1();
 
-	// Load Enemy Textures
-	static Texture* enemy1Texture = new Texture();
-	enemy1Texture->Initialise("../assets/ball.png"); // Replace later
-
 	// Initialise Enemy
-	if (newEnemy->Initialise(*m_pRenderer, *enemy1Texture, m_pRenderer->GetWidth(), m_pRenderer->GetHeight())) {
+	if (newEnemy->Initialise(*m_pRenderer, *m_enemy1Texture, m_pRenderer->GetWidth(), m_pRenderer->GetHeight())) {
 		newEnemy->SpawnOffScreen();
 		m_enemies.push_back(newEnemy);
+	}
+	else {
+		LogManager::GetInstance().Log("Enemy failed to initialise!");
+		delete newEnemy; // Clean up if failed
 	}
 }
 

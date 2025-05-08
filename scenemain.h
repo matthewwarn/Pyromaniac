@@ -55,6 +55,7 @@ protected:
 	Renderer* m_pRenderer;
 
 	std::vector<Enemy*> m_enemies;
+	Texture* m_enemy1Texture = nullptr;
 	float m_enemySpawnTimer;
 	float m_enemySpawnInterval;
 	float m_gameTimer;

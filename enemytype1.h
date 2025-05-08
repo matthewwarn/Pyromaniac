@@ -8,13 +8,18 @@ class EnemyType1 : public Enemy
 	// Member methods:
 public:
 	bool Initialise(Renderer& renderer, Texture& texture, int screenWidth, int screenHeight) override {
+		
+		if (!Enemy::Initialise(renderer, texture, screenWidth, screenHeight)) {
+			return false;
+		}
+		
 		m_originalSpeed = 35.0f;
 		m_speed = 35.0f;
 		m_health = 300;
 
 		m_sprite.SetScale(0.2f);
 
-		return Enemy::Initialise(renderer, texture, screenWidth, screenHeight);
+		return true;
 	}
 
 	void Process(float deltaTime, const Vector2& playerPos) override {

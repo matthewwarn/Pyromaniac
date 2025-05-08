@@ -211,6 +211,8 @@
     <ClInclude Include="xboxcontroller.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="game\shaders\sprite.frag" />
     <None Include="game\shaders\sprite.vert" />
   </ItemGroup>

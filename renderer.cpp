@@ -48,6 +48,9 @@ Renderer::~Renderer()
 	delete m_pSpriteVertexData;
 	m_pSpriteVertexData = 0;
 
+	delete m_pWhiteTexture;
+	m_pWhiteTexture = 0;
+
 	delete m_pTextureManager;
 	m_pTextureManager = 0;
 
