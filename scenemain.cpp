@@ -24,11 +24,22 @@ SceneMain::SceneMain()
 	, m_enemySpawnInterval(1.0f)
 	, m_gameTimer(0.0f)
 	, m_powerupSpawnTimer(30.0f) // Default: 30
+	, m_playerTexture(0)
 {
 }
 
 SceneMain::~SceneMain() 
 {
+	if (m_enemy1Texture) {
+		delete m_enemy1Texture;
+		m_enemy1Texture = nullptr;
+	}
+
+	if (m_playerTexture) {
+		delete m_playerTexture;
+		m_playerTexture = nullptr;
+	}
+
 	for (Powerup* powerup : m_powerups) {
 		delete powerup;
 	}
@@ -46,18 +57,24 @@ SceneMain::Initialise(Renderer& renderer)
 	m_pRenderer = &renderer;
 
 	// Load Player Texture
-	static Texture* playerTexture = new Texture();
-	playerTexture->Initialise("../assets/ball.png"); // Replace later
-	m_player.Initialise(renderer, *playerTexture);
-
-	// Load Enemy Textures
-	static Texture* enemyTexture = new Texture();
-	if (!enemyTexture->Initialise("../assets/ball.png"))
-	{
-		LogManager::GetInstance().Log("Failed to load enemy texture!");
+	m_playerTexture = new Texture();
+	if (!m_playerTexture->Initialise("../assets/ball.png")) { // Replace later
+		LogManager::GetInstance().Log("Failed to load player texture!");
+		delete m_playerTexture;
+		m_playerTexture = nullptr;
 		return false;
 	}
-	m_enemy1Texture = enemyTexture;
+	m_player.Initialise(*m_pRenderer, *m_playerTexture);
+
+	// Load Enemy Textures
+	m_enemy1Texture = new Texture();
+	if (!m_enemy1Texture->Initialise("../assets/ball.png"))
+	{
+		LogManager::GetInstance().Log("Failed to load enemy1 texture!");
+		delete m_enemy1Texture;
+		m_enemy1Texture = nullptr;
+		return false;
+	}
 
 	// Spawn in center
 	m_screenWidth = renderer.GetWidth();

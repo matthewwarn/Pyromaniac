@@ -45,6 +45,13 @@ Game::Game() : m_pRenderer(0), m_bLooping(true)
 
 Game::~Game()
 {
+	if (m_pFMODSystem)
+	{
+		m_pFMODSystem->close();
+		m_pFMODSystem->release();
+		m_pFMODSystem = 0;
+	}
+
 	delete m_pRenderer;
 	m_pRenderer = 0;
 
@@ -65,7 +72,7 @@ bool Game::Initialise()
 	int bbHeight = 480;
 
 	m_pRenderer = new Renderer();
-	if (!m_pRenderer->Initialise(false, bbWidth, bbHeight))
+	if (!m_pRenderer->Initialise(true, bbWidth, bbHeight))
 	{
 		LogManager::GetInstance().Log("Renderer failed to initialise!");
 		return false;
@@ -95,15 +102,30 @@ bool Game::Initialise()
 	Scene* pScene = 0;
 
 	pScene = new SceneMain();
-	pScene->Initialise(*m_pRenderer);
+	if (!pScene->Initialise(*m_pRenderer))
+	{
+		delete pScene;
+		LogManager::GetInstance().Log("SceneMain failed to initialise!");
+		return false;
+	}
 	m_scenes.push_back(pScene);
 
 	pScene = new SceneCheckerboards(m_pFMODSystem);
-	pScene->Initialise(*m_pRenderer);
+	if (!pScene->Initialise(*m_pRenderer))
+	{
+		delete pScene;
+		LogManager::GetInstance().Log("SceneCheckerboards failed to initialise!");
+		return false;
+	}
 	m_scenes.push_back(pScene);
 
 	pScene = new SceneBouncingBalls();
-	pScene->Initialise(*m_pRenderer);
+	if (!pScene->Initialise(*m_pRenderer))
+	{
+		delete pScene;
+		LogManager::GetInstance().Log("SceneBouncingBalls failed to initialise!");
+		return false;
+	}
 	m_scenes.push_back(pScene);
 
 	m_iCurrentScene = 0;

@@ -124,11 +124,11 @@ AnimatedSprite::SetupFrames(int fixedFrameWidth, int fixedFrameHeight)
 	
 	m_pVertexData = new VertexArray(vertices, numVertices, allIndices, totalIndices);
 	
-	delete vertices;
-	vertices = 0;
+	delete[] vertices;
+	vertices = nullptr;
 	
-	delete allIndices;
-	allIndices = 0;
+	delete[] allIndices;
+	allIndices = nullptr;
 }
 
 void

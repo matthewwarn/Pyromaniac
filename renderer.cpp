@@ -221,11 +221,18 @@ Sprite* Renderer::CreateSprite(const char* pcFilename)
 	assert(m_pTextureManager);
 
 	Texture* pTexture = m_pTextureManager->GetTexture(pcFilename);
+	if (!pTexture)
+	{
+		LogManager::GetInstance().Log("Failed to load texture for sprite.");
+		return nullptr;
+	}
 
 	Sprite* pSprite = new Sprite();
 	if (!pSprite->Initialise(*pTexture))
 	{
 		LogManager::GetInstance().Log("Sprite Failed to Create!");
+		delete pSprite;
+		return nullptr;
 	}
 
 	return (pSprite);
@@ -315,6 +322,8 @@ Renderer::CreateAnimatedSprite(const char* pcFilename)
 	if (!pSprite->Initialise(*pTexture))
 	{
 		LogManager::GetInstance().Log("AnimatedSprite failed to create!");
+		delete pSprite;
+		return nullptr;
 	}
 
 	return pSprite;

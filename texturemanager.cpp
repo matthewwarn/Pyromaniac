@@ -44,6 +44,7 @@ Texture* TextureManager::GetTexture(const char* pcFilename)
 		{
 			LogManager::GetInstance().Log("Texture failed to initialise!");
 			assert(0);
+			return nullptr;
 		}
 		m_pLoadedTextures[pcFilename] = pTexture;
 	}

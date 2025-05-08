@@ -35,9 +35,20 @@ SceneBouncingBalls::Initialise(Renderer& renderer)
 	for (int k = 0; k < 100; ++k)
 	{
 		m_pBalls[k] = new Ball();
-		m_pBalls[k]->Initialise(renderer);
+
+		if (!m_pBalls[k]->Initialise(renderer))
+		{
+			for (int i = 0; i < k; ++i)  // Clean up all previously allocated balls
+			{
+				delete m_pBalls[i];
+				m_pBalls[i] = nullptr;
+			}
+			return false;  // Early exit due to initialization failure
+		}
 
 		m_pBalls[k]->RandomiseColour();
+
+		return true;
 	}
 
 	// Always place one ball at the centre...

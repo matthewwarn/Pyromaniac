@@ -29,17 +29,28 @@ SceneCheckerboards::SceneCheckerboards(FMOD::System* pFMODSystem)
 
 SceneCheckerboards::~SceneCheckerboards()
 {
-	for (int k = 0; k < 4; ++k)
-	{
-		delete m_pCorners[k];
-		m_pCorners[k] = 0;
+	if (m_pCentre) {
+		delete m_pCentre;
+		m_pCentre = nullptr;
 	}
 
-	delete m_pCentre;
-	m_pCentre = 0;
+	for (int k = 0; k < 4; ++k)
+	{
+		if (m_pCorners[k]) {
+			delete m_pCorners[k];
+			m_pCorners[k] = nullptr;
+		}
+	}
 
-	delete m_pAnimatedSprite;
-	m_pAnimatedSprite = 0;
+	if (m_pAnimatedSprite) {
+		delete m_pAnimatedSprite;
+		m_pAnimatedSprite = nullptr;
+	}
+
+	if (m_pAnimatedSprite2) {
+		delete m_pAnimatedSprite2;
+		m_pAnimatedSprite2 = nullptr;
+	}
 }
 
 bool
