@@ -3,6 +3,7 @@
 #include "renderer.h"
 #include <iostream>
 #include <glew.h>
+#include "xboxcontroller.h"
 
 Player::Player()
 	: m_position(0.0f, 0.0f)
@@ -59,6 +60,7 @@ void Player::Movement(float deltaTime, InputSystem& inputSystem) {
 	ButtonState dState = inputSystem.GetKeyState(SDL_SCANCODE_D);
 	ButtonState kState = inputSystem.GetKeyState(SDL_SCANCODE_K);
 
+	// Keyboard input
 	if (wState == BS_HELD || wState == BS_PRESSED) {
 		direction.y -= 1.0f;
 	}
@@ -80,6 +82,31 @@ void Player::Movement(float deltaTime, InputSystem& inputSystem) {
 		m_isAttacking = false;
 	}
 
+	// Gamepad input
+	XboxController* controller = inputSystem.GetController(0);
+
+	if (controller && controller->IsConnected()) {
+		Vector2 leftStick = controller->GetLeftStick();
+
+		if (leftStick.LengthSquared() > 0.1f) {
+			direction += leftStick;
+
+			if (leftStick.x > 0.1f){
+				m_facingDirection = Direction::Right;
+			}
+			else if (leftStick.x < -0.1f) {
+				m_facingDirection = Direction::Left;
+			}
+		}
+
+		if (controller->GetButtonState(SDL_CONTROLLER_BUTTON_X) == BS_PRESSED) {
+			m_isAttacking = true;
+		}
+		else if (controller->GetButtonState(SDL_CONTROLLER_BUTTON_X) == BS_RELEASED) {
+			m_isAttacking = false;
+		}
+	}
+	
 	// If player has pressed button to move, update player position
 	if (direction.LengthSquared() > 0.0f)
 	{
@@ -246,4 +273,20 @@ void Player::HandlePowerups(float deltaTime) {
 			m_zeroOverheatTimer = 10.0f; // Reset timer
 		}
 	}
+}
+
+void Player::ResetPlayer()
+{
+	m_health = 1;
+	m_isInvincible = false;
+	m_zeroOverheatActive = false;
+	m_weaponHeat = 0.0f;
+	m_isOverheated = false;
+	m_currentOverheatCooldown = 0.0f;
+	m_isAttacking = false;
+
+	// Reset sprite colour
+	m_sprite.SetRedTint(0.0f);
+	m_sprite.SetGreenTint(1.0f);
+	m_sprite.SetBlueTint(0.0f);
 }

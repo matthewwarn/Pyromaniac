@@ -24,6 +24,8 @@ public:
 	void InitBalls();
 	void ToggleDebugWindow();
 
+	void SetCurrentScene(int index);
+
 protected:
 	void Process(float deltaTime);
 	void Draw(Renderer& renderer);

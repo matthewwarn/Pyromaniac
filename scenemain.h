@@ -41,6 +41,18 @@ public:
 
 	void KillAllEnemies();
 
+	enum class GameState {
+		Playing,
+		Paused
+	};
+
+	void GameStateCheck(InputSystem& inputSystem);
+	GameState GetGameState() const;
+
+	void DrawPauseMenu(Renderer& renderer);
+	
+	void ResetGame();
+
 protected:
 	Player m_player;
 
@@ -50,6 +62,7 @@ private:
 
 	// Member data:
 public:
+	GameState m_gameState;
 
 protected:
 	Renderer* m_pRenderer;
@@ -67,6 +80,10 @@ protected:
 
 	std::vector<Powerup*> m_powerups;
 	float m_powerupSpawnTimer;
+
+	Sprite* m_pauseOverlaySprite = nullptr;
+	Texture* m_pauseOverlayTexture = nullptr;
+	bool m_pauseAssetsLoaded = false;
 
 private:
 	// IMGui Variables

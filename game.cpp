@@ -16,6 +16,7 @@
 #include "scenemain.h"
 #include "scenecheckerboards.h"
 #include "scenebouncingballs.h"
+#include "scenemenu.h"
 
 
 // Static Members:
@@ -55,6 +56,9 @@ Game::~Game()
 	delete m_pRenderer;
 	m_pRenderer = 0;
 
+	delete m_pInputSystem;
+	m_pInputSystem = 0;
+
 	for (Scene* scene : m_scenes){
 		delete scene;
 	}
@@ -72,7 +76,7 @@ bool Game::Initialise()
 	int bbHeight = 480;
 
 	m_pRenderer = new Renderer();
-	if (!m_pRenderer->Initialise(true, bbWidth, bbHeight))
+	if (!m_pRenderer->Initialise(false, bbWidth, bbHeight))
 	{
 		LogManager::GetInstance().Log("Renderer failed to initialise!");
 		return false;
@@ -90,16 +94,34 @@ bool Game::Initialise()
 	m_pFMODSystem->init(512, FMOD_INIT_NORMAL, 0);
 
 	// Initialise Input System
-	m_pInputSystem= new InputSystem();
+	if (m_pInputSystem != nullptr)
+	{
+		delete m_pInputSystem;
+		m_pInputSystem = nullptr;
+	}
+
+	m_pInputSystem = new InputSystem();
+	
 	if (!m_pInputSystem->Initialise())
 	{
 		LogManager::GetInstance().Log("InputSystem failed to initialise!");
 		return false;
 	}
 
+	// Generate random seed
 	srand(static_cast<unsigned int>(time(0)));
 
+	// Initialise Scenes
 	Scene* pScene = 0;
+
+	pScene = new SceneMenu();
+	if (!pScene->Initialise(*m_pRenderer))
+	{
+		delete pScene;
+		LogManager::GetInstance().Log("SceneMenu failed to initialise!");
+		return false;
+	}
+	m_scenes.push_back(pScene);
 
 	pScene = new SceneMain();
 	if (!pScene->Initialise(*m_pRenderer))
@@ -186,24 +208,15 @@ void Game::Process(float deltaTime)
 		std::cout << "Backspace pressed" << std::endl;
 		ToggleDebugWindow();
 	}
-
-	// Quit Game
-	ButtonState escapeState = m_pInputSystem->GetKeyState(SDL_SCANCODE_ESCAPE);
-	if (escapeState == BS_PRESSED)
-	{
-		std::cout << "Escape pressed" << std::endl;
-		Quit();
-	}
 }
 
 void Game::Draw(Renderer& renderer)
 {
-
 	++m_iFrameCount;
 
 	renderer.Clear();
 
-	//Draw Current Scene
+	// Draw Current Scene
 	m_scenes[m_iCurrentScene]->Draw(renderer);
 
 	DebugDraw();
@@ -255,4 +268,12 @@ void Game::ToggleDebugWindow
 	std::cout << "Toggle Debug Window" << std::endl;
 	m_bShowDebugWindow = !m_bShowDebugWindow;
 	m_pInputSystem->ShowMouseCursor(m_bShowDebugWindow);
+}
+
+void Game::SetCurrentScene(int index)
+{
+	if (index >= 0 && index < static_cast<int>(m_scenes.size()))
+	{
+		m_iCurrentScene = index;
+	}
 }

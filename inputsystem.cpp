@@ -55,6 +55,12 @@ bool InputSystem::Initialise()
 
 	m_iNumAttachedControllers = SDL_NumJoysticks();
 
+	if (m_pXboxController != nullptr)
+	{
+		delete[] m_pXboxController;
+		m_pXboxController = nullptr;
+	}
+
 	m_pXboxController = new XboxController[m_iNumAttachedControllers];
 
 	for (int k = 0; k < m_iNumAttachedControllers; ++k)
@@ -231,5 +237,9 @@ int InputSystem::GetNumberOfControllersAttached() const
 
 XboxController* InputSystem::GetController(int controllerIndex)
 {
-	return &m_pXboxController[controllerIndex];
+	if (controllerIndex >= 0 && controllerIndex < m_iNumAttachedControllers) {
+		XboxController* controller = &m_pXboxController[controllerIndex];
+		return (controller->IsConnected()) ? controller : nullptr;
+	}
+	return nullptr;
 }

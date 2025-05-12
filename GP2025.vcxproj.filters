@@ -111,6 +111,9 @@
     <ClCompile Include="powerupgenocide.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="scenemenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logmanager.h">
@@ -216,6 +219,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="powerupgenocide.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scenemenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

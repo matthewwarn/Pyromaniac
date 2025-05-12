@@ -27,9 +27,28 @@ Texture::~Texture()
 	}
 }
 
-bool Texture::Initialise(const char* pcFilename)
+static void FlipSurfaceVertically(SDL_Surface* surf)
 {
-	SDL_Surface* pSurface = IMG_Load(pcFilename);
+	int pitch = surf->pitch;            // bytes per row
+	auto* temp = new uint8_t[pitch];    // one row buffer
+	auto* pixels = static_cast<uint8_t*>(surf->pixels);
+
+	for (int y = 0, y2 = surf->h - 1; y < y2; ++y, --y2)
+	{
+		uint8_t* row = pixels + y * pitch;
+		uint8_t* rowOpp = pixels + y2 * pitch;
+
+		// swap rows
+		memcpy(temp, row, pitch);
+		memcpy(row, rowOpp, pitch);
+		memcpy(rowOpp, temp, pitch);
+	}
+
+	delete[] temp;
+}
+
+bool Texture::Initialise(const char* pcFilename)
+{	SDL_Surface* pSurface = IMG_Load(pcFilename);
 
 	if (pSurface)
 	{
@@ -39,6 +58,8 @@ bool Texture::Initialise(const char* pcFilename)
 		int bytesPerPixel = pSurface->format->BytesPerPixel;
 
 		unsigned int format = 0;
+
+		FlipSurfaceVertically(pSurface);
 
 		if (bytesPerPixel == 3)
 		{

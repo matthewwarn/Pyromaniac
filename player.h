@@ -40,6 +40,8 @@ public:
 	void HandleFlamethrower(float deltaTime);
 	void HandlePowerups(float deltaTime);
 
+	void ResetPlayer();
+
 	// Member data:
 public:
 	int m_health;

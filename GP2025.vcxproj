@@ -165,6 +165,7 @@
     <ClCompile Include="scenebouncingballs.cpp" />
     <ClCompile Include="scenecheckerboards.cpp" />
     <ClCompile Include="scenemain.cpp" />
+    <ClCompile Include="scenemenu.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="texture.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="scenebouncingballs.h" />
     <ClInclude Include="scenecheckerboards.h" />
     <ClInclude Include="scenemain.h" />
+    <ClInclude Include="scenemenu.h" />
     <ClInclude Include="SDL_ttf.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="sprite.h" />

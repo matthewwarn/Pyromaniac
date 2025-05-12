@@ -11,6 +11,8 @@
 #include "player.h"
 #include "enemytype1.h"
 #include "enemy.h"
+#include "xboxcontroller.h"
+
 
 // Library includes:
 #include <cassert>
@@ -18,6 +20,7 @@
 #include <ctime>
 #include <iostream>
 #include <cstdlib>
+#include <algorithm>
 
 SceneMain::SceneMain()
 	: m_enemySpawnTimer(0.0f)
@@ -40,6 +43,16 @@ SceneMain::~SceneMain()
 		m_playerTexture = nullptr;
 	}
 
+	if (m_pauseOverlayTexture) {
+		delete m_pauseOverlayTexture;
+		m_pauseOverlayTexture = nullptr;
+	}
+
+	if (m_pauseOverlaySprite) {
+		delete m_pauseOverlaySprite;
+		m_pauseOverlaySprite = nullptr;
+	}
+
 	for (Powerup* powerup : m_powerups) {
 		delete powerup;
 	}
@@ -55,6 +68,30 @@ bool
 SceneMain::Initialise(Renderer& renderer)
 {
 	m_pRenderer = &renderer;
+	m_screenWidth = renderer.GetWidth();
+	m_screenHeight = renderer.GetHeight();
+
+	// Load Pause Textures
+	m_pauseOverlayTexture = new Texture();
+	if (!m_pauseOverlayTexture->Initialise("../assets/pause.png")) {
+		LogManager::GetInstance().Log("Failed to load pause overlay texture!");
+		delete m_pauseOverlayTexture;
+		m_pauseOverlayTexture = nullptr;
+		return false;
+	}
+	m_pauseOverlaySprite = new Sprite();
+	if (!m_pauseOverlaySprite->Initialise(*m_pauseOverlayTexture)) {
+		LogManager::GetInstance().Log("Failed to load pause overlay sprite!");
+		delete m_pauseOverlaySprite;
+		m_pauseOverlaySprite = nullptr;
+		return false;
+	}
+	float targetWidth = m_screenWidth * 0.8;
+	float targetHeight = m_screenHeight * 0.8;
+	float scaleX = targetWidth / m_pauseOverlayTexture->GetWidth();
+	float scaleY = targetHeight / m_pauseOverlayTexture->GetHeight();
+	float scale = std::min(scaleX, scaleY); // Keep aspect ratio
+	m_pauseOverlaySprite->SetScale(scale);
 
 	// Load Player Texture
 	m_playerTexture = new Texture();
@@ -77,10 +114,10 @@ SceneMain::Initialise(Renderer& renderer)
 	}
 
 	// Spawn in center
-	m_screenWidth = renderer.GetWidth();
-	m_screenHeight = renderer.GetHeight();
 	Vector2 startPos(m_screenWidth / 2, m_screenHeight / 2);
 	m_player.SetPosition(startPos);
+
+	m_gameState = GameState::Playing;
 
 	return true;
 }
@@ -88,6 +125,13 @@ SceneMain::Initialise(Renderer& renderer)
 void
 SceneMain::Process(float deltaTime, InputSystem& inputSystem) 
 {
+	// Check for pause
+	GameStateCheck(inputSystem);
+
+	if (m_gameState == GameState::Paused) {
+		return; // Don't process if paused
+	}
+
 	m_player.Process(deltaTime, inputSystem);
 
 	m_gameTimer += deltaTime;
@@ -152,6 +196,10 @@ SceneMain::Draw(Renderer& renderer)
 	}
 
 	m_player.DrawHeatBar(renderer);
+
+	if (m_gameState == GameState::Paused) {
+		DrawPauseMenu(renderer);
+	}
 }
 
 void SceneMain::DebugDraw
@@ -250,7 +298,7 @@ void SceneMain::handleAttackCollisions(float deltaTime) {
 			enemyPos.y + enemyRadius > attackTop && enemyPos.y - enemyRadius < attackBottom)
 		{
 			if (m_player.CanAttack()) {
-				enemy->TakeDamage(60 * deltaTime); // Take 60 damage per second
+				enemy->TakeDamage(100 * deltaTime); // Take 60 damage per second
 				enemy->SetTakingDamage(true); // Slows enemy and tints red	
 			}
 		}
@@ -279,7 +327,6 @@ void SceneMain::processPowerups(float deltaTime)
 		case 1:
 			m_powerups.push_back(new PowerupInvincibility(pos));
 			break;
-		
 		case 2:
 			m_powerups.push_back(new PowerupZeroOverheat(pos));
 			break;
@@ -331,3 +378,73 @@ void SceneMain::KillAllEnemies() {
 	}
 }
 
+void SceneMain::GameStateCheck(InputSystem& inputSystem) {
+	// Check for pause button
+	if ((inputSystem.GetKeyState(SDL_SCANCODE_P) == BS_PRESSED) ||
+		(inputSystem.GetController(0) && inputSystem.GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_START) == BS_PRESSED)) {
+
+		if (m_gameState == GameState::Playing) {
+			m_gameState = GameState::Paused;
+		}
+		else {
+			m_gameState = GameState::Playing;
+		}
+	}
+
+	if (m_gameState == GameState::Paused) {
+		// Restart Game
+		if (inputSystem.GetKeyState(SDL_SCANCODE_R) == BS_PRESSED ||
+			inputSystem.GetController(0) && inputSystem.GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_LEFTSHOULDER) == BS_PRESSED)
+		{
+			ResetGame();
+		}
+
+		// Quit Game
+		if (inputSystem.GetKeyState(SDL_SCANCODE_ESCAPE) == BS_PRESSED ||
+			inputSystem.GetController(0) && inputSystem.GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_BACK) == BS_PRESSED)
+		{
+			Game::GetInstance().Quit();
+		}
+	}
+}
+
+SceneMain::GameState SceneMain::GetGameState() const {
+	return m_gameState;
+}
+
+void SceneMain::DrawPauseMenu(Renderer& renderer) {
+	int centerX = m_screenWidth / 2;
+	int centerY = m_screenHeight / 2;
+
+	// Draw pause menu background
+	renderer.DrawRect(centerX, centerY, renderer.GetWidth(), renderer.GetHeight(), 0.0f, 0.0f, 0.0f, 0.5f);
+
+	// Draw pause menu sprite
+	m_pauseOverlaySprite->SetX(centerX);
+	m_pauseOverlaySprite->SetY(centerY + m_screenHeight / 16);
+	m_pauseOverlaySprite->Draw(renderer);
+}
+
+void SceneMain::ResetGame() {
+	// Clearing Screen
+	for (Enemy* enemy : m_enemies) {
+		delete enemy;
+	}
+	for (Powerup* powerup : m_powerups) {
+		delete powerup;
+	}
+	m_enemies.clear();
+	m_powerups.clear();
+	
+	// Resetting Timers
+	m_enemySpawnTimer = 0.0f;
+	m_gameTimer = 0.0f;
+
+	// Reset Player
+	m_player.SetPosition(Vector2(m_screenWidth / 2, m_screenHeight / 2));
+	m_player.ResetPlayer();
+
+	// Unpause Game
+	m_gameState = GameState::Playing;
+
+}

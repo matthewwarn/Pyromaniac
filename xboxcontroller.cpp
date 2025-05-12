@@ -107,11 +107,30 @@ XboxController::GetRightTrigger() const
 const Vector2&
 XboxController::GetLeftStick() const
 {
-	return m_leftStick;
+	Sint16 rawX = SDL_GameControllerGetAxis(m_pController, SDL_CONTROLLER_AXIS_LEFTX);
+	Sint16 rawY = SDL_GameControllerGetAxis(m_pController, SDL_CONTROLLER_AXIS_LEFTY);
+
+	// Normalize to [-1.0f, 1.0f]
+	const float deadzone = 8000.0f;
+	Vector2 stick;
+
+	if (abs(rawX) > deadzone) {
+		stick.x = rawX / 32768.0f;
+	}
+	if (abs(rawY) > deadzone) {
+		stick.y = rawY / 32768.0f;
+	}
+
+	return stick;
 }
 
 const Vector2&
 XboxController::GetRightStick() const
 {
 	return m_rightStick;
+}
+
+bool XboxController::IsConnected() const
+{
+	return m_bConnected;
 }
