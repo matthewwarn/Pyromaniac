@@ -1,25 +1,25 @@
-#ifndef ENEMYTYPE1_H
-#define ENEMYTYPE1_H
+#ifndef ENEMYTYPE3_H
+#define ENEMYTYPE3_H
 
 #include "enemy.h"
 
-// ENEMY 1: Sturdy and Steady
+// ENEMY 3: Slow and Tanky
 
-class EnemyType1 : public Enemy
+class EnemyType3 : public Enemy
 {
 	// Member methods:
 public:
 	bool Initialise(Renderer& renderer, Texture& texture, int screenWidth, int screenHeight) override {
-		
+
 		if (!Enemy::Initialise(renderer, texture, screenWidth, screenHeight)) {
 			return false;
 		}
-		
-		m_originalSpeed = 60.0f;
-		m_speed = 60.0f;
-		m_health = 100.0f;
 
-		m_sprite.SetScale(0.2f);
+		m_originalSpeed = 40.0f;
+		m_speed = 40.0f;
+		m_health = 350.0f;
+
+		m_sprite.SetScale(0.4f);
 
 		return true;
 	}
@@ -29,4 +29,4 @@ public:
 	}
 };
 
-#endif // ENEMYTYPE1_H
+#endif // ENEMYTYPE2_H

@@ -69,21 +69,21 @@ void Enemy::SpawnOffScreen() {
 	switch (side) {
 	case 0: // Top
 		m_position.x = rand() % m_screenWidth;
-		m_position.y = -100; 
+		m_position.y = -200; 
 		break;
 	
 	case 1: // Bottom
 		m_position.x = rand() % m_screenWidth;
-		m_position.y = m_screenHeight + 100;
+		m_position.y = m_screenHeight + 200;
 		break;
 	
 	case 2: // Left
-		m_position.x = -100;
+		m_position.x = -200;
 		m_position.y = rand() % m_screenHeight;
 		break;
 
 	case 3: // Right
-		m_position.x = m_screenWidth + 100;
+		m_position.x = m_screenWidth + 200;
 		m_position.y = rand() % m_screenHeight;
 		break;
 	}
@@ -105,7 +105,7 @@ float Enemy::GetSpeed()
 	return m_speed;
 }
 
-int Enemy::GetHealth() {
+float Enemy::GetHealth() {
 	return m_health;
 }
 

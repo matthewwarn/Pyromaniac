@@ -29,7 +29,7 @@ public:
 
 	int GetRadius();
 	float GetSpeed();
-	int GetHealth();
+	float GetHealth();
 	
 	void SetSpeed(float newSpeed);
 	void SetTakingDamage(bool takingDamage);
@@ -46,7 +46,7 @@ protected:
 	Vector2 m_position;
 	float m_speed;
 	float m_originalSpeed;
-	int m_health;
+	float m_health;
 	Sprite m_sprite;
 
 	bool m_takingDamage;

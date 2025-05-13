@@ -1,25 +1,25 @@
-#ifndef ENEMYTYPE1_H
-#define ENEMYTYPE1_H
+#ifndef BOSS_H
+#define BOSS_H
 
 #include "enemy.h"
 
-// ENEMY 1: Sturdy and Steady
+// BOSS: Fat and Dangerous
 
-class EnemyType1 : public Enemy
+class Boss : public Enemy
 {
 	// Member methods:
 public:
 	bool Initialise(Renderer& renderer, Texture& texture, int screenWidth, int screenHeight) override {
-		
+
 		if (!Enemy::Initialise(renderer, texture, screenWidth, screenHeight)) {
 			return false;
 		}
-		
-		m_originalSpeed = 60.0f;
-		m_speed = 60.0f;
-		m_health = 100.0f;
 
-		m_sprite.SetScale(0.2f);
+		m_originalSpeed = 70.0f;
+		m_speed = 70.0f;
+		m_health = 3000.0f;
+
+		m_sprite.SetScale(1.0f);
 
 		return true;
 	}
@@ -29,4 +29,4 @@ public:
 	}
 };
 
-#endif // ENEMYTYPE1_H
+#endif // BOSS_H

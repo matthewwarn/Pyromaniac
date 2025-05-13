@@ -7,6 +7,9 @@
 #include "fmod.hpp"
 #include "player.h"
 #include "enemytype1.h"
+#include "enemytype2.h"
+#include "enemytype3.h"
+#include "boss.h"
 #include "texture.h"
 #include "powerupinvincibility.h"
 #include "powerupzerooverheat.h"
@@ -53,6 +56,12 @@ public:
 	
 	void ResetGame();
 
+	void Progression(float deltaTime);
+
+	void DebugKeys(float deltaTime, InputSystem& inputSystem);
+
+	bool LoadTextures();
+
 protected:
 	Player m_player;
 
@@ -68,10 +77,22 @@ protected:
 	Renderer* m_pRenderer;
 
 	std::vector<Enemy*> m_enemies;
+	std::vector<Texture*> m_textures;
+
 	Texture* m_enemy1Texture;
+	Texture* m_enemy2Texture;
+	Texture* m_enemy3Texture;
+	Texture* m_bossTexture;
+	Boss* m_finalBoss;
+
+	const float m_baseEnemySpawnWeights[3] = { 0.5f, 0.0f, 0.0f }; // Weights for enemy types
+	float m_enemySpawnWeights[3] = { 0.5f, 0.0f, 0.0f }; // Weights for enemy types
+
 	float m_enemySpawnTimer;
+	const float m_baseEnemySpawnInterval = 1.5f;
 	float m_enemySpawnInterval;
 	float m_gameTimer;
+	bool m_bossReached = false;
 
 	Texture* m_playerTexture;
 

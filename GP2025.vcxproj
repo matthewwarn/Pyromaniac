@@ -177,8 +177,11 @@
   <ItemGroup>
     <ClInclude Include="animatedsprite.h" />
     <ClInclude Include="ball.h" />
+    <ClInclude Include="boss.h" />
     <ClInclude Include="enemy.h" />
     <ClInclude Include="enemytype1.h" />
+    <ClInclude Include="enemytype2.h" />
+    <ClInclude Include="enemytype3.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
