@@ -15,6 +15,7 @@
 #include "boss.h"
 #include "enemy.h"
 #include "xboxcontroller.h"
+#include "audiomanager.h"
 
 
 // Library includes:
@@ -22,8 +23,11 @@
 #include "fmod.hpp"
 #include <ctime>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <cstdlib>
 #include <algorithm>
+#include <string>
 
 SceneMain::SceneMain()
 	: m_enemySpawnTimer(0.0f)
@@ -47,15 +51,29 @@ SceneMain::~SceneMain()
 		m_pauseOverlaySprite = nullptr;
 	}
 
+	if (m_scoreSprite) {
+		delete m_scoreSprite;
+		m_scoreSprite = nullptr;
+	}
+
+	if (m_finalBoss) {
+		delete m_finalBoss;
+		m_finalBoss = nullptr;
+	}
+
 	for (Powerup* powerup : m_powerups) {
 		delete powerup;
+		powerup = nullptr;
 	}
 	m_powerups.clear();
 
 	for (Enemy* enemy : m_enemies) {
 		delete enemy;
+		enemy = nullptr;
 	}
 	m_enemies.clear();
+
+	AudioManager::GetInstance().Shutdown();
 }
 
 bool
@@ -65,7 +83,11 @@ SceneMain::Initialise(Renderer& renderer)
 	m_screenWidth = renderer.GetWidth();
 	m_screenHeight = renderer.GetHeight();
 
+
+	AudioManager::GetInstance().Initialise();
+
 	LoadTextures();
+	LoadAudio();
 
 	// Spawn in center
 	Vector2 startPos(m_screenWidth / 2, m_screenHeight / 2);
@@ -82,6 +104,16 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 	// Check for pause
 	GameStateCheck(inputSystem);
 
+	if (m_gameState == GameState::Win) {
+		if (inputSystem.GetKeyState(SDL_SCANCODE_ESCAPE) == BS_PRESSED ||
+			(inputSystem.GetController(0) && inputSystem.GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_BACK) == BS_PRESSED))
+		{
+			ResetGame();
+			Game::GetInstance().SetCurrentScene(1); // Go back to menu
+		}
+		return; // Don't process if paused
+	}
+
 	if (m_gameState == GameState::Paused) {
 		return; // Don't process if paused
 	}
@@ -96,6 +128,10 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 		SpawnEnemy();
 		m_enemySpawnTimer = 0.0f;
 	}
+
+	AudioManager::GetInstance().Process();
+
+	ProcessWeaponAudio();
 
 	processEnemies(deltaTime);
 
@@ -157,6 +193,10 @@ SceneMain::Draw(Renderer& renderer)
 
 	if (m_gameState == GameState::Paused) {
 		DrawPauseMenu(renderer);
+	}
+
+	if (m_gameState == GameState::Win) {
+		DrawWinMenu(renderer);
 	}
 }
 
@@ -260,6 +300,7 @@ void SceneMain::processEnemies(float deltaTime) {
 		std::remove_if(m_enemies.begin(), m_enemies.end(),
 			[](Enemy* enemy) {
 				if (!enemy->IsAlive()) {
+					AudioManager::GetInstance().PlaySound("boom", 0.7f);
 					delete enemy;
 					return true;
 				}
@@ -427,6 +468,18 @@ void SceneMain::DrawPauseMenu(Renderer& renderer) {
 	m_pauseOverlaySprite->Draw(renderer);
 }
 
+void SceneMain::DrawWinMenu(Renderer& renderer) {
+	int centerX = m_screenWidth / 2;
+	int centerY = m_screenHeight / 2;
+
+	// Draw pause menu background
+	renderer.DrawRect(centerX, centerY, renderer.GetWidth(), renderer.GetHeight(), 1.0f, 0.75f, 0.8f, 0.5f);
+
+	if (m_scoreSprite) {
+		m_scoreSprite->Draw(renderer);
+	}
+}
+
 void SceneMain::ResetGame() {
 	// Clearing Screen
 	for (Enemy* enemy : m_enemies) {
@@ -442,6 +495,7 @@ void SceneMain::ResetGame() {
 	m_enemySpawnTimer = 0.0f;
 	m_enemySpawnInterval = m_baseEnemySpawnInterval;
 	m_gameTimer = 0.0f;
+	m_finalTime = 0.0f;
 	m_bossReached = false;
 	
 	// Resetting Spawn Weights
@@ -523,11 +577,26 @@ void SceneMain::Progression(float deltaTime) {
 			m_bossReached = true;
 		}
 
+		// Win Screen
 		if (!m_finalBoss->IsAlive()) {
-			//stop timer
-			//calculate score
-			//pause game
-			//win screen
+			m_finalTime = m_gameTimer;
+
+			// Create text with final score
+			if (!m_scoreSprite) {
+				std::ostringstream oss;
+				oss << std::setw(6)           // pad to at least 6 characters
+					<< std::setfill('0')      // filling character is '0'
+					<< m_score;              // the number
+
+				std::string scoreText = "Final Score: " + oss.str();
+				m_pRenderer->CreateStaticText(scoreText.c_str(), 72);
+				m_scoreSprite = m_pRenderer->CreateSprite(scoreText.c_str());
+			}
+			
+			m_scoreSprite->SetX(m_screenWidth / 2);
+			m_scoreSprite->SetY(m_screenHeight / 2);
+
+			m_gameState = GameState::Win;
 		}
 	}
 }
@@ -535,8 +604,21 @@ void SceneMain::Progression(float deltaTime) {
 void SceneMain::DebugKeys(float deltaTime, InputSystem& inputSystem)
 {
 	// GOD MODE - F1
+	if (inputSystem.GetKeyState(SDL_SCANCODE_F1) == BS_PRESSED)
+	{
+		m_player.SetHealth(9999999);
+	}
 	// ZERO OVERHEAT - F2
+	if (inputSystem.GetKeyState(SDL_SCANCODE_F2) == BS_PRESSED)
+	{
+		PowerupZeroOverheat* powerup = new PowerupZeroOverheat(Vector2(0, 0));
+		powerup->ApplyPowerup(m_player, *this);
+	}
 	// KILL ALL ENEMIES - F3
+	if (inputSystem.GetKeyState(SDL_SCANCODE_F3) == BS_PRESSED)
+	{
+		KillAllEnemies();
+	}
 	// SKIP TIMER - F4
 	if (inputSystem.GetKeyState(SDL_SCANCODE_F4) == BS_PRESSED)
 	{
@@ -544,12 +626,15 @@ void SceneMain::DebugKeys(float deltaTime, InputSystem& inputSystem)
 
 	}
 	// DISPLAY ATTACK HITBOX - F5
+	if (inputSystem.GetKeyState(SDL_SCANCODE_F5) == BS_PRESSED)
+	{
+		m_showHitbox = !m_showHitbox;
+	}
 	// RESTART GAME - F12
 	if (inputSystem.GetKeyState(SDL_SCANCODE_F12) == BS_PRESSED)
 	{
 		ResetGame();
 	}
-
 }
 
 bool
@@ -631,4 +716,39 @@ SceneMain::LoadTextures() {
 	m_textures.push_back(m_bossTexture);
 
 	return true;
+}
+
+void
+SceneMain::LoadAudio() 
+{
+	AudioManager::GetInstance().LoadSound("boom", "../assets/sound/boom.mp3", false);
+	AudioManager::GetInstance().LoadSound("flamethrower", "../assets/sound/flamethrower.wav", false);
+	AudioManager::GetInstance().LoadSound("overheat", "../assets/sound/overheat.mp3", false);
+}
+
+void
+SceneMain::ProcessWeaponAudio() 
+{
+	// Play Weapon Audio
+	if (m_player.m_isAttacking && m_player.CanAttack()) {
+		if (!weaponAudioPlaying) {
+			AudioManager::GetInstance().PlaySound("flamethrower", 0.7f);
+			weaponAudioPlaying = true;
+		}
+	}
+	else {
+		AudioManager::GetInstance().StopSound("flamethrower");
+		weaponAudioPlaying = false;
+	}
+
+	// Overheat Audio
+	if (m_player.m_isAttacking && m_player.m_isOverheated) {
+		if (!overheatAudioPlaying) {
+			AudioManager::GetInstance().PlaySound("overheat", 1.0f);
+			overheatAudioPlaying = true;
+		}
+	}
+	else {
+		overheatAudioPlaying = false;
+	}
 }

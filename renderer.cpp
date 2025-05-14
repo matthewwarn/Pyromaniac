@@ -369,7 +369,7 @@ void
 Renderer::CreateStaticText(const char* pText, int pointsize)
 {
 	Texture* pTexture = new Texture();
-	pTexture->LoadTextTexture(pText, "ArianaVioleta-dz2K.ttf", pointsize);
+	pTexture->LoadTextTexture(pText, "BPdotsSquareBold.otf", pointsize);
 	m_pTextureManager->AddTexture(pText, pTexture);
 }
 

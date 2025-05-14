@@ -140,6 +140,7 @@ Texture::LoadTextTexture(const char* text, const char* fontname, int pointsize)
 	SDL_FreeSurface(pSurface);  // Free the original surface
 	pSurface = formattedSurface;
 
+	FlipSurfaceVertically(pSurface);
 	LoadSurfaceIntoTexture(pSurface);
 	
 	TTF_CloseFont(pFont);

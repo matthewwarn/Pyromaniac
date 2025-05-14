@@ -241,6 +241,10 @@ void Player::SetInvincible() {
 	m_isInvincible = true;
 }
 
+void Player::SetHealth(int health) {
+	m_health = health;
+}
+
 void Player::HandlePowerups(float deltaTime) {
 	// Invincibility
 	if (m_isInvincible) {

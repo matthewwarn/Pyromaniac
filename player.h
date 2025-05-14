@@ -32,6 +32,7 @@ public:
 	Direction GetFacingDirection();
 	int GetRadius();
 	int GetHealth();
+	void SetHealth(int health);
 	void SetInvincible();
 
 	void SetPosition(const Vector2& pos);
@@ -52,6 +53,7 @@ public:
 	float m_heatIncreaseRate = 50.0f;
 	float m_heatDecreaseRate = 25.0f;
 	float m_maxHeat = 250.0f;
+	bool m_isAttacking;
 
 	bool m_isOverheated = false;
 	float m_overheatCooldown = 5.0f;
@@ -59,6 +61,7 @@ public:
 
 	float m_invincibleTimer = 10.0f;
 	float m_zeroOverheatTimer = 15.0f;
+
 private:
 	Sprite m_sprite;
 	Vector2 m_position;
@@ -69,7 +72,6 @@ private:
 	int m_spriteWidth;
 	int m_spriteHeight;
 
-	bool m_isAttacking;
 	bool m_isInvincible;
 	bool m_zeroOverheatActive;
 

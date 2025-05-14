@@ -46,13 +46,15 @@ public:
 
 	enum class GameState {
 		Playing,
-		Paused
+		Paused,
+		Win
 	};
 
 	void GameStateCheck(InputSystem& inputSystem);
 	GameState GetGameState() const;
 
 	void DrawPauseMenu(Renderer& renderer);
+	void DrawWinMenu(Renderer& renderer);
 	
 	void ResetGame();
 
@@ -61,6 +63,9 @@ public:
 	void DebugKeys(float deltaTime, InputSystem& inputSystem);
 
 	bool LoadTextures();
+	void LoadAudio();
+
+	void ProcessWeaponAudio();
 
 protected:
 	Player m_player;
@@ -91,7 +96,12 @@ protected:
 	float m_enemySpawnTimer;
 	const float m_baseEnemySpawnInterval = 1.5f;
 	float m_enemySpawnInterval;
+
 	float m_gameTimer;
+	float m_finalTime;
+	float m_score = 1.0f;
+	Sprite* m_scoreSprite;
+
 	bool m_bossReached = false;
 
 	Texture* m_playerTexture;
@@ -105,6 +115,9 @@ protected:
 	Sprite* m_pauseOverlaySprite = nullptr;
 	Texture* m_pauseOverlayTexture = nullptr;
 	bool m_pauseAssetsLoaded = false;
+
+	bool weaponAudioPlaying = false;
+	bool overheatAudioPlaying = false;
 
 private:
 	// IMGui Variables

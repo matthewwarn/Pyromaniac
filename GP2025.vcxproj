@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="animatedsprite.cpp" />
+    <ClCompile Include="audiomanager.cpp" />
     <ClCompile Include="ball.cpp" />
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="game.cpp" />
@@ -177,6 +178,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animatedsprite.h" />
+    <ClInclude Include="audiomanager.h" />
     <ClInclude Include="ball.h" />
     <ClInclude Include="boss.h" />
     <ClInclude Include="enemy.h" />
