@@ -71,7 +71,7 @@ SceneMenu::Process(float deltaTime, InputSystem& inputSystem)
 	if (inputSystem.GetKeyState(SDL_SCANCODE_RETURN) == BS_PRESSED ||
 		inputSystem.GetController(0) && inputSystem.GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_START) == BS_PRESSED)
 	{
-		Game::GetInstance().SetCurrentScene(1); // Start the game
+		Game::GetInstance().SetCurrentScene(2); // Start the game
 	}
 
 	if (inputSystem.GetKeyState(SDL_SCANCODE_ESCAPE) == BS_PRESSED ||

@@ -248,7 +248,8 @@ void SceneMain::processEnemies(float deltaTime) {
 			m_player.TakeDamage();
 
 			if(m_player.GetHealth() == 0) {
-				Game::GetInstance().Quit();
+				ResetGame();
+				Game::GetInstance().SetCurrentScene(1); // Restart game
 			}
 			break; // Only damage player once per frame (for if I increase health later)
 		}
@@ -422,7 +423,7 @@ void SceneMain::DrawPauseMenu(Renderer& renderer) {
 
 	// Draw pause menu sprite
 	m_pauseOverlaySprite->SetX(centerX);
-	m_pauseOverlaySprite->SetY(centerY + m_screenHeight / 16);
+	m_pauseOverlaySprite->SetY(centerY + m_screenHeight / 18);
 	m_pauseOverlaySprite->Draw(renderer);
 }
 

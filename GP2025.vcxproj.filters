@@ -114,6 +114,9 @@
     <ClCompile Include="scenemenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="scenesplash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logmanager.h">
@@ -231,6 +234,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="boss.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scenesplash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

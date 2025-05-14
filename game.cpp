@@ -13,11 +13,11 @@
 #include "fmod.hpp"
 
 // Scene includes:
+#include "scenesplash.h"
+#include "scenemenu.h"
 #include "scenemain.h"
 #include "scenecheckerboards.h"
 #include "scenebouncingballs.h"
-#include "scenemenu.h"
-
 
 // Static Members:
 Game* Game::sm_pInstance = 0;
@@ -114,6 +114,15 @@ bool Game::Initialise()
 	// Initialise Scenes
 	Scene* pScene = 0;
 
+	pScene = new SceneSplash();
+	if (!pScene->Initialise(*m_pRenderer))
+	{
+		delete pScene;
+		LogManager::GetInstance().Log("SceneSplash failed to initialise!");
+		return false;
+	}
+	m_scenes.push_back(pScene);
+
 	pScene = new SceneMenu();
 	if (!pScene->Initialise(*m_pRenderer))
 	{
@@ -132,23 +141,23 @@ bool Game::Initialise()
 	}
 	m_scenes.push_back(pScene);
 
-	pScene = new SceneCheckerboards(m_pFMODSystem);
-	if (!pScene->Initialise(*m_pRenderer))
-	{
-		delete pScene;
-		LogManager::GetInstance().Log("SceneCheckerboards failed to initialise!");
-		return false;
-	}
-	m_scenes.push_back(pScene);
+	//pScene = new SceneCheckerboards(m_pFMODSystem);
+	//if (!pScene->Initialise(*m_pRenderer))
+	//{
+	//	delete pScene;
+	//	LogManager::GetInstance().Log("SceneCheckerboards failed to initialise!");
+	//	return false;
+	//}
+	//m_scenes.push_back(pScene);
 
-	pScene = new SceneBouncingBalls();
-	if (!pScene->Initialise(*m_pRenderer))
-	{
-		delete pScene;
-		LogManager::GetInstance().Log("SceneBouncingBalls failed to initialise!");
-		return false;
-	}
-	m_scenes.push_back(pScene);
+	//pScene = new SceneBouncingBalls();
+	//if (!pScene->Initialise(*m_pRenderer))
+	//{
+	//	delete pScene;
+	//	LogManager::GetInstance().Log("SceneBouncingBalls failed to initialise!");
+	//	return false;
+	//}
+	//m_scenes.push_back(pScene);
 
 	m_iCurrentScene = 0;
 

@@ -17,7 +17,7 @@ public:
 
 		m_originalSpeed = 40.0f;
 		m_speed = 40.0f;
-		m_health = 350.0f;
+		m_health = 250.0f;
 
 		m_sprite.SetScale(0.4f);
 
