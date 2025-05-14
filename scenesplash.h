@@ -59,16 +59,9 @@ protected:
 
 	bool m_isAssetsLoaded = false;
 
-	std::vector<Texture*> m_textures;
 	std::vector<Sprite*> m_sprites;
-
-	Texture* m_backgroundTexture = nullptr;
 	Sprite* m_backgroundSprite;
-
-	Texture* m_autTexture = nullptr;
 	Sprite* m_autSprite;
-
-	Texture* m_fmodTexture = nullptr;
 	Sprite* m_fmodSprite;
 
 private:

@@ -16,7 +16,7 @@ public:
 	Enemy();
 	virtual ~Enemy();
 
-	virtual bool Initialise(Renderer& renderer, Texture& texture, int screenWidth, int screenHeight);
+	virtual bool Initialise(Renderer& renderer, const char* spritePath, int screenWidth, int screenHeight);
 	virtual void Process(float deltaTime, const Vector2& playerPos);
 	virtual void Draw(Renderer& renderer);
 
@@ -47,7 +47,7 @@ protected:
 	float m_speed;
 	float m_originalSpeed;
 	float m_health;
-	Sprite m_sprite;
+	Sprite* m_sprite = nullptr;
 
 	bool m_takingDamage;
 

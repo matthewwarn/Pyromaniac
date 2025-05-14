@@ -40,12 +40,6 @@ SceneMain::SceneMain()
 
 SceneMain::~SceneMain() 
 {
-
-	for (Texture* texture : m_textures) {
-		delete texture;
-	}
-	m_textures.clear();
-
 	if (m_pauseOverlaySprite) {
 		delete m_pauseOverlaySprite;
 		m_pauseOverlaySprite = nullptr;
@@ -236,32 +230,17 @@ void SceneMain::SpawnEnemy()
 	switch (enemyType) {
 	case 1:
 		newEnemy = new EnemyType1();
-
-		if (!newEnemy->Initialise(*m_pRenderer, *m_enemy1Texture, m_pRenderer->GetWidth(), m_pRenderer->GetHeight())) {
-			LogManager::GetInstance().Log("Enemy failed to initialise!");
-			delete newEnemy; // Clean up if failed
-		}
-
+		newEnemy->Initialise(*m_pRenderer, "../assets/ball.png", m_screenWidth, m_screenHeight);
 		break;
 
 	case 2:
 		newEnemy = new EnemyType2();
-
-		if (!newEnemy->Initialise(*m_pRenderer, *m_enemy2Texture, m_pRenderer->GetWidth(), m_pRenderer->GetHeight())) {
-			LogManager::GetInstance().Log("Enemy failed to initialise!");
-			delete newEnemy; 
-		}
-
+		newEnemy->Initialise(*m_pRenderer, "../assets/ball.png", m_screenWidth, m_screenHeight);
 		break;
 
 	case 3:
 		newEnemy = new EnemyType3();
-	
-		if (!newEnemy->Initialise(*m_pRenderer, *m_enemy3Texture, m_pRenderer->GetWidth(), m_pRenderer->GetHeight())) {
-			LogManager::GetInstance().Log("Enemy failed to initialise!");
-			delete newEnemy;
-		}
-
+		newEnemy->Initialise(*m_pRenderer, "../assets/ball.png", m_screenWidth, m_screenHeight);
 		break;
 	
 	default:
@@ -300,7 +279,7 @@ void SceneMain::processEnemies(float deltaTime) {
 		std::remove_if(m_enemies.begin(), m_enemies.end(),
 			[](Enemy* enemy) {
 				if (!enemy->IsAlive()) {
-					AudioManager::GetInstance().PlaySound("boom", 0.7f);
+					AudioManager::GetInstance().PlaySound("boom", 0.8f);
 					delete enemy;
 					return true;
 				}
@@ -567,7 +546,7 @@ void SceneMain::Progression(float deltaTime) {
 			// Spawn Boss
 			m_finalBoss = new Boss();
 
-			if (!m_finalBoss->Initialise(*m_pRenderer, *m_bossTexture, m_pRenderer->GetWidth(), m_pRenderer->GetHeight())) {
+			if (!m_finalBoss->Initialise(*m_pRenderer, "../assets/ball.png", m_screenWidth, m_screenHeight)) {
 				LogManager::GetInstance().Log("Boss failed to initialise!");
 				delete m_finalBoss;
 			}
@@ -640,28 +619,14 @@ void SceneMain::DebugKeys(float deltaTime, InputSystem& inputSystem)
 bool
 SceneMain::LoadTextures() {
 	// Load Pause Textures
-	m_pauseOverlayTexture = new Texture();
-	if (!m_pauseOverlayTexture->Initialise("../assets/pause.png")) {
-		LogManager::GetInstance().Log("Failed to load pause overlay texture!");
-		delete m_pauseOverlayTexture;
-		m_pauseOverlayTexture = nullptr;
-		return false;
-	}
-	m_pauseOverlaySprite = new Sprite();
-	if (!m_pauseOverlaySprite->Initialise(*m_pauseOverlayTexture)) {
-		LogManager::GetInstance().Log("Failed to load pause overlay sprite!");
-		delete m_pauseOverlaySprite;
-		m_pauseOverlaySprite = nullptr;
-		return false;
-	}
+	m_pauseOverlaySprite = m_pRenderer->CreateSprite("../assets/pause.png");
+
 	float targetWidth = m_screenWidth * 0.8;
 	float targetHeight = m_screenHeight * 0.8;
-	float scaleX = targetWidth / m_pauseOverlayTexture->GetWidth();
-	float scaleY = targetHeight / m_pauseOverlayTexture->GetHeight();
+	float scaleX = targetWidth / m_pauseOverlaySprite->GetWidth();
+	float scaleY = targetHeight / m_pauseOverlaySprite->GetHeight();
 	float scale = std::min(scaleX, scaleY); // Keep aspect ratio
 	m_pauseOverlaySprite->SetScale(scale);
-
-	m_textures.push_back(m_pauseOverlayTexture);
 
 	// Load Player Texture
 	m_playerTexture = new Texture();
@@ -672,48 +637,6 @@ SceneMain::LoadTextures() {
 		return false;
 	}
 	m_player.Initialise(*m_pRenderer, *m_playerTexture);
-	m_textures.push_back(m_playerTexture);
-
-	// Load Enemy Textures
-	m_enemy1Texture = new Texture();
-	if (!m_enemy1Texture->Initialise("../assets/ball.png"))
-	{
-		LogManager::GetInstance().Log("Failed to load enemy1 texture!");
-		delete m_enemy1Texture;
-		m_enemy1Texture = nullptr;
-		return false;
-	}
-	m_textures.push_back(m_enemy1Texture);
-
-	m_enemy2Texture = new Texture();
-	if (!m_enemy2Texture->Initialise("../assets/ball.png"))
-	{
-		LogManager::GetInstance().Log("Failed to load enemy2 texture!");
-		delete m_enemy2Texture;
-		m_enemy2Texture = nullptr;
-		return false;
-	}
-	m_textures.push_back(m_enemy2Texture);
-
-	m_enemy3Texture = new Texture();
-	if (!m_enemy3Texture->Initialise("../assets/ball.png"))
-	{
-		LogManager::GetInstance().Log("Failed to load enemy3 texture!");
-		delete m_enemy3Texture;
-		m_enemy3Texture = nullptr;
-		return false;
-	}
-	m_textures.push_back(m_enemy3Texture);
-
-	m_bossTexture = new Texture();
-	if (!m_bossTexture->Initialise("../assets/ball.png"))
-	{
-		LogManager::GetInstance().Log("Failed to load boss texture!");
-		delete m_bossTexture;
-		m_bossTexture = nullptr;
-		return false;
-	}
-	m_textures.push_back(m_bossTexture);
 
 	return true;
 }

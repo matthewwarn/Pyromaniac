@@ -24,15 +24,9 @@ SceneSplash::SceneSplash()
 
 SceneSplash::~SceneSplash()
 {
-	for (Texture* texture : m_textures) {
-		delete texture;
-	}
-	m_textures.clear();
-
-	for (Sprite* sprite : m_sprites) {
-		delete sprite;
-	}
-	m_sprites.clear();
+	delete m_backgroundSprite;
+	delete m_autSprite;
+	delete m_fmodSprite;
 }
 
 bool
@@ -43,63 +37,30 @@ SceneSplash::Initialise(Renderer& renderer)
 	m_screenHeight = renderer.GetHeight();
 
 	// Load the background texture
-	Texture* backgroundTexture = new Texture();
-	if (!backgroundTexture->Initialise("../assets/black.png")) {
-		LogManager::GetInstance().Log("Failed to load splash background texture!");
-		delete backgroundTexture;
-		return false;
-	}
-	m_textures.push_back(backgroundTexture);
-
-	m_backgroundTexture = backgroundTexture;
-
-	m_backgroundSprite = new Sprite();
-	if (!m_backgroundSprite->Initialise(*backgroundTexture)) {
+	m_backgroundSprite = renderer.CreateSprite("../assets/black.png");
+	if (!m_backgroundSprite) {
 		LogManager::GetInstance().Log("Failed to create splash background sprite!");
-		delete m_backgroundSprite;
-		m_backgroundSprite = nullptr;
-		delete backgroundTexture;
 		return false;
 	}
-	m_sprites.push_back(m_backgroundSprite);
+
+	float scaleX = static_cast<float>(m_screenWidth) / m_backgroundSprite->GetWidth();
+	float scaleY = static_cast<float>(m_screenHeight) / m_backgroundSprite->GetHeight();
+	float scale = std::max(scaleX, scaleY);
+	m_backgroundSprite->SetScale(scale);
 
 	// Load the AUT texture
-	m_autTexture = new Texture();
-	if (!m_autTexture->Initialise("../assets/aut.png")) {
-		LogManager::GetInstance().Log("Failed to load AUT texture!");
-		delete m_autTexture;
-		return false;
-	}
-	m_textures.push_back(m_autTexture);
-
-	m_autSprite = new Sprite();
-	if (!m_autSprite->Initialise(*m_autTexture)) {
+	m_autSprite = renderer.CreateSprite("../assets/aut.png");
+	if (!m_autSprite) {
 		LogManager::GetInstance().Log("Failed to create AUT sprite!");
-		delete m_autSprite;
-		m_autSprite = nullptr;
-		delete m_autTexture;
 		return false;
 	}
-	m_sprites.push_back(m_autSprite);
 
 	// Load the FMOD texture
-	m_fmodTexture = new Texture();
-	if (!m_fmodTexture->Initialise("../assets/fmod_white.png")) {
-		LogManager::GetInstance().Log("Failed to load FMOD texture!");
-		delete m_fmodTexture;
-		return false;
-	}
-	m_textures.push_back(m_fmodTexture);
-
-	m_fmodSprite = new Sprite();
-	if (!m_fmodSprite->Initialise(*m_fmodTexture)) {
+	m_fmodSprite = renderer.CreateSprite("../assets/fmod_white.png");
+	if (!m_fmodSprite) {
 		LogManager::GetInstance().Log("Failed to create FMOD sprite!");
-		delete m_fmodSprite;
-		m_fmodSprite = nullptr;
-		delete m_fmodTexture;
 		return false;
 	}
-	m_sprites.push_back(m_fmodSprite);
 
 	m_isAssetsLoaded = true;
 
@@ -197,10 +158,6 @@ void
 SceneSplash::Draw(Renderer& renderer)
 {
 	// Draw the background
-	float scaleX = static_cast<float>(m_screenWidth) / m_backgroundTexture->GetWidth();
-	float scaleY = static_cast<float>(m_screenHeight) / m_backgroundTexture->GetHeight();
-	float scale = std::max(scaleX, scaleY);
-	m_backgroundSprite->SetScale(scale);
 
 	m_backgroundSprite->SetX(m_screenWidth / 2);
 	m_backgroundSprite->SetY(m_screenHeight / 2);

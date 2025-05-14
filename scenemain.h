@@ -82,12 +82,11 @@ protected:
 	Renderer* m_pRenderer;
 
 	std::vector<Enemy*> m_enemies;
-	std::vector<Texture*> m_textures;
 
-	Texture* m_enemy1Texture;
-	Texture* m_enemy2Texture;
-	Texture* m_enemy3Texture;
-	Texture* m_bossTexture;
+	Sprite* m_enemy1Sprite;
+	Sprite* m_enemy2Sprite;
+	Sprite* m_enemy3Sprite;
+	Sprite* m_bossSprite;
 	Boss* m_finalBoss;
 
 	const float m_baseEnemySpawnWeights[3] = { 0.5f, 0.0f, 0.0f }; // Weights for enemy types

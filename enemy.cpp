@@ -19,30 +19,32 @@ Enemy::Enemy()
 }
 
 Enemy::~Enemy() {
-	
+	delete m_sprite;
 }
 
-bool Enemy::Initialise(Renderer& renderer, Texture& texture, int screenWidth, int screenheight) {
+bool Enemy::Initialise(Renderer& renderer, const char* spritePath, int screenWidth, int screenHeight) {
 	m_screenWidth = screenWidth;
-	m_screenHeight = screenheight;
+	m_screenHeight = screenHeight;
+	
+	m_sprite = renderer.CreateSprite(spritePath);
 
-	return m_sprite.Initialise(texture);
+	return (m_sprite != nullptr);
 }
 
 void Enemy::Process(float deltaTime, const Vector2& playerPos) {
 	if (m_takingDamage) {
 		// Damage Indicator
-		m_sprite.SetRedTint(1.0f);
-		m_sprite.SetGreenTint(0.0f);
-		m_sprite.SetBlueTint(0.0f);
+		m_sprite->SetRedTint(1.0f);
+		m_sprite->SetGreenTint(0.0f);
+		m_sprite->SetBlueTint(0.0f);
 
 		// Slow Enemy
 		m_speed = m_originalSpeed * 0.5f;
 	} 
 	else {
-		m_sprite.SetRedTint(1.0f);
-		m_sprite.SetGreenTint(1.0f);
-		m_sprite.SetBlueTint(1.0f);
+		m_sprite->SetRedTint(1.0f);
+		m_sprite->SetGreenTint(1.0f);
+		m_sprite->SetBlueTint(1.0f);
 
 		// Reset speed
 		m_speed = m_originalSpeed;
@@ -52,9 +54,9 @@ void Enemy::Process(float deltaTime, const Vector2& playerPos) {
 }
 
 void Enemy::Draw(Renderer& renderer) {
-	m_sprite.SetX(static_cast<int>(m_position.x));
-	m_sprite.SetY(static_cast<int>(m_position.y));
-	m_sprite.Draw(renderer);
+	m_sprite->SetX(m_position.x);
+	m_sprite->SetY(m_position.y);
+	m_sprite->Draw(renderer);
 }
 
 Vector2& Enemy::GetPosition()
@@ -97,7 +99,7 @@ void Enemy::MoveTowardsPlayer(const Vector2& playerPos, float deltaTime) {
 }
 
 int Enemy::GetRadius() {
-	return m_sprite.GetWidth() / 2;
+	return m_sprite->GetWidth() / 2;
 }
 
 float Enemy::GetSpeed()
