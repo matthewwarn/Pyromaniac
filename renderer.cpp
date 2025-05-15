@@ -346,7 +346,7 @@ Renderer::DrawAnimatedSprite(AnimatedSprite& sprite, int frame)
 	world.m[0][0] = cosf(angleInRadians) * (sizeX);
 	world.m[0][1] = -sinf(angleInRadians) * (sizeX);
 	world.m[1][0] = sinf(angleInRadians) * (sizeY);
-	world.m[1][1] = cosf(angleInRadians) * (sizeY);
+	world.m[1][1] = -cosf(angleInRadians) * (sizeY);
 	world.m[3][0] = static_cast<float>(sprite.GetX());
 	world.m[3][1] = static_cast<float>(sprite.GetY());
 	
@@ -356,7 +356,7 @@ Renderer::DrawAnimatedSprite(AnimatedSprite& sprite, int frame)
 	CreateOrthoProjection(orthoViewProj, static_cast<float>(m_iWidth), static_cast<float>(m_iHeight));
 
 	m_pSpriteShader->SetVector4Uniform("colour", sprite.GetRedTint(),
-		sprite.GetGreenTint(), sprite.GetBlueTint(), sprite.GetAlpha());
+	sprite.GetGreenTint(), sprite.GetBlueTint(), sprite.GetAlpha());
 	m_pSpriteShader->SetMatrixUniform("uViewProj", orthoViewProj);
 
 	glEnable(GL_BLEND);

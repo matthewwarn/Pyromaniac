@@ -10,12 +10,11 @@ class EnemyType1 : public Enemy
 	// Member methods:
 public:
 	bool Initialise(Renderer& renderer, const char* spritePath, int screenWidth, int screenHeight) override {
-		
 		if (!Enemy::Initialise(renderer, spritePath, screenWidth, screenHeight)) {
 			return false;
 		}
 		
-		m_originalSpeed = 60.0f;
+		m_originalSpeed = 50.0f;
 		m_speed = 60.0f;
 		m_health = 80.0f;
 

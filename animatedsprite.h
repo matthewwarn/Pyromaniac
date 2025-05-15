@@ -27,8 +27,13 @@ public:
 	bool IsAnimating() const;
 	void Restart();
 	void SetFrameDuration(float seconds);
+
 	int GetWidth() const;
 	int GetHeight() const;
+
+	int GetFrameWidth() const { return m_iFrameWidth; }
+	int GetFrameHeight() const { return m_iFrameHeight; }
+
 	void DebugDraw();
 
 protected:
@@ -53,6 +58,7 @@ protected:
 	bool m_bLooping;
 
 private:
+	int m_iNumFrames;
 
 };
 

@@ -5,6 +5,7 @@
 #include "vector2.h"
 #include "sprite.h"
 #include "texture.h"
+#include "animatedsprite.h"
 
 class Renderer;
 class Texture;
@@ -27,7 +28,7 @@ public:
 	void TakeDamage(float amount);
 	bool IsAlive();
 
-	int GetRadius();
+	virtual int GetRadius();
 	float GetSpeed();
 	float GetHealth();
 	
@@ -53,6 +54,8 @@ protected:
 
 	int m_screenWidth;
 	int m_screenHeight;
+
+	AnimatedSprite* m_animatedSprite = nullptr;
 };
 
 #endif // ENEMY_H

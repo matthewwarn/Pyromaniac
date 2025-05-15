@@ -546,7 +546,7 @@ void SceneMain::Progression(float deltaTime) {
 			// Spawn Boss
 			m_finalBoss = new Boss();
 
-			if (!m_finalBoss->Initialise(*m_pRenderer, "../assets/ball.png", m_screenWidth, m_screenHeight)) {
+			if (!m_finalBoss->Initialise(*m_pRenderer, "../assets/boss.png", m_screenWidth, m_screenHeight)) {
 				LogManager::GetInstance().Log("Boss failed to initialise!");
 				delete m_finalBoss;
 			}

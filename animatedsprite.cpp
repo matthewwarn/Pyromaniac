@@ -57,78 +57,68 @@ AnimatedSprite::IsAnimating() const
 	return m_bAnimating;
 }
 
-void
-AnimatedSprite::SetupFrames(int fixedFrameWidth, int fixedFrameHeight)
+void AnimatedSprite::SetupFrames(int fixedFrameWidth, int fixedFrameHeight)
 {
-	m_iFrameWidth = fixedFrameWidth;
-	m_iFrameHeight = fixedFrameHeight;
-	
-	const int textureWidth = m_pTexture->GetWidth();
-	const int textureHeight = m_pTexture->GetHeight();
-	const int totalFramesWide = textureWidth / fixedFrameWidth;
-	const int totalFramesHigh = textureHeight / fixedFrameHeight;
-	
-	const int stride = 5;
-	const float uFrameWidth = 1.0f / totalFramesWide;
-	const float vFrameHeight = 1.0f / totalFramesHigh;
-	m_iTotalFrames = totalFramesWide * totalFramesHigh;
-	
-	const int vertsPerSprite = 4;
-	const int numVertices = vertsPerSprite * (m_iTotalFrames);
-	
-	float* vertices = new float[numVertices * stride];
+    m_iFrameWidth = fixedFrameWidth;
+    m_iFrameHeight = fixedFrameHeight;
 
-	for (int h = 0; h < totalFramesHigh; ++h)
-	{
-		for (int w = 0; w < totalFramesWide; ++w)
-		{
-			float uOffset = (w * uFrameWidth);
-			float vOffset = (h * vFrameHeight);
-			
-			float quad[] =
-			{
-			-0.5f, 0.5f, 0.0f, 0.0f + uOffset, vOffset +vFrameHeight,
-			0.5f, 0.5f, 0.0f, uFrameWidth + uOffset, vOffset + vFrameHeight,
-			0.5f, -0.5f, 0.0f, uFrameWidth + uOffset, vOffset,
-			-0.5f, -0.5f, 0.0f, 0.0f + uOffset, vOffset
-			};
-			
-			const int floatsPerSprite = stride * vertsPerSprite;
-			
-			for (int j = 0; j < floatsPerSprite; ++j)
-			{
-				int index = ((w * floatsPerSprite) + j) + (h * (floatsPerSprite * totalFramesWide));
-			
-				vertices[index] = quad[j];
-			}
-		}
-	}
+    const int texW = m_pTexture->GetWidth();
+    const int texH = m_pTexture->GetHeight();
+    const int cols = texW / fixedFrameWidth;
+    const int rows = texH / fixedFrameHeight;
+    m_iTotalFrames = cols * rows;
 
-	const int totalIndices = 6 * m_iTotalFrames;
-	unsigned int* allIndices = new unsigned int[totalIndices];
-	
-	unsigned int i = 0;
-	for (int k = 0; k < m_iTotalFrames; ++k)
-	{
-		unsigned int indices[] = { 0 + i, 1 + i, 2 + i, 2 + i, 3 + i, 0 + i };
-	
-		for (int j = 0; j < 6; ++j)
-		{
-			int index = (k * 6) + j;
-		
-			allIndices[index] = indices[j];
-		}
-		
-		i += 4;
-	}
-	
-	m_pVertexData = new VertexArray(vertices, numVertices, allIndices, totalIndices);
-	
-	delete[] vertices;
-	vertices = nullptr;
-	
-	delete[] allIndices;
-	allIndices = nullptr;
+    const int vertsPer = 4;
+    const int floatsPer = vertsPer * 5;      // x,y,z,u,v
+    const int numVertices = vertsPer * m_iTotalFrames;
+    float* vertices = new float[numVertices * 5];
+
+    float uStep = 1.0f / float(cols);
+    float vStep = 1.0f / float(rows);
+
+    for (int row = 0; row < rows; ++row)
+        for (int col = 0; col < cols; ++col)
+        {
+            int frameIdx = row * cols + col;
+            int baseVert = frameIdx * floatsPer;
+
+            // compute U extents
+            float u0 = col * uStep;
+            float u1 = (col + 1) * uStep;
+
+            // compute V extents *flipped* so that row=0 is top of texture
+            float v1 = 1.0f - float(row) * vStep;   // top edge
+            float v0 = v1 - vStep;         // bottom edge
+
+            // quad:  x,    y,   z,   u,   v
+            float quad[] = {
+                -0.5f,  0.5f, 0.0f, u0, v1,
+                 0.5f,  0.5f, 0.0f, u1, v1,
+                 0.5f, -0.5f, 0.0f, u1, v0,
+                -0.5f, -0.5f, 0.0f, u0, v0
+            };
+
+            memcpy(&vertices[baseVert], quad, sizeof(quad));
+        }
+
+    // build indices
+    const int totalIndices = 6 * m_iTotalFrames;
+    unsigned int* indices = new unsigned int[totalIndices];
+    for (int i = 0, v = 0; i < totalIndices; i += 6, v += 4)
+    {
+        indices[i + 0] = v + 0;
+        indices[i + 1] = v + 1;
+        indices[i + 2] = v + 2;
+        indices[i + 3] = v + 2;
+        indices[i + 4] = v + 3;
+        indices[i + 5] = v + 0;
+    }
+
+    delete m_pVertexData;
+    m_pVertexData = new VertexArray(vertices, numVertices, indices, totalIndices);
+
+    delete[] vertices;
+    delete[] indices;
 }
 
 void
