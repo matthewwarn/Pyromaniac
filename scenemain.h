@@ -43,6 +43,7 @@ public:
 	void processPowerups(float deltaTime);
 
 	void KillAllEnemies();
+	void DebugKillAllEnemies();
 
 	enum class GameState {
 		Playing,
@@ -118,9 +119,14 @@ protected:
 	bool weaponAudioPlaying = false;
 	bool overheatAudioPlaying = false;
 
+	bool m_bossDeathTriggered = false;
+	float m_bossDeathTimer = 0.0f;
+	const float m_bossDeathDelay = 4.0f; 
+	bool m_bossDeathAudioPlaying = false;
+
 private:
 	// IMGui Variables
-	bool m_showHitbox = true; // Set to false for release
+	bool m_showHitbox = false;
 };
 
 #endif // SCENEMAIN_H

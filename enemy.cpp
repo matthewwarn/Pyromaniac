@@ -50,13 +50,15 @@ void Enemy::Process(float deltaTime, const Vector2& playerPos) {
 		m_speed = m_originalSpeed;
 	}
 
+	m_animatedSprite->Process(deltaTime);
 	MoveTowardsPlayer(playerPos, deltaTime);
 }
 
 void Enemy::Draw(Renderer& renderer) {
-	m_sprite->SetX(m_position.x);
-	m_sprite->SetY(m_position.y);
-	m_sprite->Draw(renderer);
+	m_animatedSprite->SetX(m_position.x);
+	m_animatedSprite->SetY(m_position.y);
+
+	m_animatedSprite->Draw(renderer);
 }
 
 Vector2& Enemy::GetPosition()

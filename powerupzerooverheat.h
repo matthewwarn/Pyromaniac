@@ -10,12 +10,8 @@ public:
 		: Powerup(position)
 	{
 		static Texture* zeroOverheatTexture = new Texture();
-		zeroOverheatTexture->Initialise("../assets/ball.png"); // Replace later
+		zeroOverheatTexture->Initialise("../assets/potion2.png"); 
 		Initialise(*zeroOverheatTexture);
-		
-		m_sprite.SetRedTint(0.741f);
-		m_sprite.SetBlueTint(0.925f);
-		m_sprite.SetGreenTint(0.871f);
 
 		m_position = position;
 	}

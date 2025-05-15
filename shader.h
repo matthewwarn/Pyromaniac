@@ -22,6 +22,8 @@ public:
 	void SetMatrixUniform(const char* name, const Matrix4& matrix);
 	void SetVector4Uniform(const char* name, float x, float y, float z, float w);
 
+	void SetIntUniform(const char* name, int value);
+
 protected:
 
 private:

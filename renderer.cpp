@@ -362,6 +362,8 @@ Renderer::DrawAnimatedSprite(AnimatedSprite& sprite, int frame)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	m_pSpriteShader->SetIntUniform("u_flipX", sprite.GetFlipX() ? 1 : 0);
+
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)((frame * 6) * sizeof(GLuint)));
 }
 

@@ -21,7 +21,7 @@ public:
 	virtual bool Initialise(Texture& texture)
 	{
 		m_sprite.Initialise(texture);
-		m_sprite.SetScale(0.22f);
+		m_sprite.SetScale(2.5f);
 		SetPosition(m_position);
 		return true;
 	}

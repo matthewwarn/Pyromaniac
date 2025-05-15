@@ -31,6 +31,9 @@ public:
 	int GetWidth() const;
 	int GetHeight() const;
 
+	bool GetFlipX() { return m_flipX; }
+	void SetFlipX(bool flip) { m_flipX = flip; }
+
 	int GetFrameWidth() const { return m_iFrameWidth; }
 	int GetFrameHeight() const { return m_iFrameHeight; }
 
@@ -56,6 +59,7 @@ protected:
 	float totalTime;
 	bool m_bAnimating;
 	bool m_bLooping;
+	bool m_flipX = false;
 
 private:
 	int m_iNumFrames;

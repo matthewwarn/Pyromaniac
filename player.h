@@ -3,6 +3,7 @@
 
 #include "vector2.h"
 #include "sprite.h"
+#include "animatedsprite.h"
 
 class Renderer;
 class Texture;
@@ -14,7 +15,7 @@ class Player
 public:
 	Player();
 	~Player();
-	bool Initialise(Renderer& renderer, Texture& texture);
+	bool Initialise(Renderer& renderer);
 	void Process(float deltaTime, InputSystem& inputSystem);
 	void DrawSprite(Renderer& renderer);
 	void Movement(float deltaTime, InputSystem& inputSystem);
@@ -47,13 +48,15 @@ public:
 public:
 	int m_health;
 
-	Direction m_facingDirection;
+	Direction m_facingDirection = Direction::Right;
 
 	float m_weaponHeat = 0.0f;
 	float m_heatIncreaseRate = 50.0f;
 	float m_heatDecreaseRate = 25.0f;
 	float m_maxHeat = 250.0f;
 	bool m_isAttacking;
+	bool m_attackAnimPlaying = false;
+	AnimatedSprite* GetFlameSprite() { return m_attackSprite; }
 
 	bool m_isOverheated = false;
 	float m_overheatCooldown = 5.0f;
@@ -63,7 +66,8 @@ public:
 	float m_zeroOverheatTimer = 15.0f;
 
 private:
-	Sprite m_sprite;
+	AnimatedSprite* m_sprite;
+	AnimatedSprite* m_attackSprite;
 	Vector2 m_position;
 	float m_speed;
 

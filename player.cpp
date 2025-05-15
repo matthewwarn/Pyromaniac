@@ -15,23 +15,47 @@ Player::~Player()
 {
 }
 
-bool Player::Initialise(Renderer& renderer, Texture& texture)
+bool Player::Initialise(Renderer& renderer)
 {
 	m_screenWidth = renderer.GetWidth();
 	m_screenHeight = renderer.GetHeight();
 
-	m_spriteWidth = m_sprite.GetWidth();
-	m_spriteHeight = m_sprite.GetHeight();
-	m_sprite.SetScale(0.3f);
-	m_sprite.SetGreenTint(1.0f);
-	m_sprite.SetRedTint(0.0f);
-	m_sprite.SetBlueTint(0.0f);
+
+	// PLAYER SPRITE
+	m_sprite = renderer.CreateAnimatedSprite("../assets/player.png");
+
+	if (!m_sprite) {
+		std::cerr << "Failed to create animated sprite for player!" << std::endl;
+		return false;
+	}
+	m_sprite->SetupFrames(158, 160);
+	m_sprite->SetFrameDuration(0.3f);
+	m_sprite->SetLooping(true);
+	m_sprite->Animate();
+	m_sprite->SetScale(0.8f);
+
+	m_spriteWidth = m_sprite->GetFrameWidth();
+	m_spriteHeight = m_sprite->GetFrameHeight();
+
+
+	// FLAME SPRITE
+	m_attackSprite = renderer.CreateAnimatedSprite("../assets/flame.png");
+	
+	if (!m_attackSprite) {
+		std::cerr << "Failed to create animated sprite for flames!" << std::endl;
+		return false;
+	}
+	m_attackSprite->SetupFrames(1260, 310);
+	m_attackSprite->SetFrameDuration(0.1f);
+	m_attackSprite->SetLooping(true);
+	m_attackSprite->Animate();
+	m_attackSprite->SetScale(0.25f);
 
 	m_health = 1;
 	m_isInvincible = false;
 	m_zeroOverheatActive = false;
 
-	return m_sprite.Initialise(texture);
+	return true;
 }
 
 void Player::Process(float deltaTime, InputSystem& inputSystem) {
@@ -45,9 +69,11 @@ void Player::Process(float deltaTime, InputSystem& inputSystem) {
 	HandlePowerups(deltaTime);
 
 	// Update position
-	m_sprite.SetX(static_cast<int>(m_position.x));
-	m_sprite.SetY(static_cast<int>(m_position.y));
+	m_sprite->SetX(static_cast<int>(m_position.x));
+	m_sprite->SetY(static_cast<int>(m_position.y));
 
+	m_sprite->Process(deltaTime);
+	m_attackSprite->Process(deltaTime);
 }
 
 void Player::Movement(float deltaTime, InputSystem& inputSystem) {
@@ -70,10 +96,12 @@ void Player::Movement(float deltaTime, InputSystem& inputSystem) {
 	if (aState == BS_HELD || aState == BS_PRESSED) {
 		direction.x -= 1.0f;
 		m_facingDirection = Direction::Left;
+		m_sprite->SetFlipX(true);
 	}
 	if (dState == BS_HELD || dState == BS_PRESSED) {
 		direction.x += 1.0f;
 		m_facingDirection = Direction::Right;
+		m_sprite->SetFlipX(false);
 	}
 	if (kState == BS_HELD || kState == BS_PRESSED) {
 		m_isAttacking = true;
@@ -93,9 +121,11 @@ void Player::Movement(float deltaTime, InputSystem& inputSystem) {
 
 			if (leftStick.x > 0.1f){
 				m_facingDirection = Direction::Right;
+				m_sprite->SetFlipX(false);
 			}
 			else if (leftStick.x < -0.1f) {
 				m_facingDirection = Direction::Left;
+				m_sprite->SetFlipX(true);
 			}
 		}
 
@@ -118,13 +148,18 @@ void Player::Movement(float deltaTime, InputSystem& inputSystem) {
 
 	if (m_position.x < 0) m_position.x = 0;
 	if (m_position.y < 0) m_position.y = 0;
-	if (m_position.x > m_screenWidth - m_spriteWidth) m_position.x = m_screenWidth - m_spriteWidth;
-	if (m_position.y > m_screenHeight - m_spriteHeight) m_position.y = m_screenHeight - m_spriteHeight;
+
+	if (m_position.x > m_screenWidth - (m_sprite->GetWidth() - (m_sprite->GetFrameWidth() * 0.8))) {
+		m_position.x = m_screenWidth - (m_sprite->GetWidth() - (m_sprite->GetFrameWidth() * 0.8));
+	}
+	if (m_position.y > m_screenHeight - (m_sprite->GetHeight() - (m_sprite->GetFrameHeight() * 0.8))) {
+		m_position.y = m_screenHeight - (m_sprite->GetHeight() - (m_sprite->GetFrameHeight()* 0.8));
+	}
 }
 
 void Player::DrawSprite(Renderer& renderer)
 {
-	m_sprite.Draw(renderer);
+	m_sprite->Draw(renderer);
 }
 
 Vector2& Player::GetPosition()
@@ -165,7 +200,7 @@ bool Player::IsAlive()
 
 int Player::GetRadius()
 {
-	return m_spriteWidth / 2;
+	return (m_sprite->GetFrameWidth() / 2) * m_sprite->GetScale() * 0.2;
 }
 
 bool Player::CanAttack()
@@ -251,9 +286,9 @@ void Player::HandlePowerups(float deltaTime) {
 		m_invincibleTimer -= deltaTime; // Decrease timer
 
 		// Visual Indicator
-		m_sprite.SetRedTint(0.0f);
-		m_sprite.SetGreenTint(1.0f);
-		m_sprite.SetBlueTint(1.0f);
+		m_sprite->SetRedTint(0.0f);
+		m_sprite->SetGreenTint(1.0f);
+		m_sprite->SetBlueTint(1.0f);
 
 		if (m_invincibleTimer <= 0.0f) {
 			m_isInvincible = false;
@@ -262,9 +297,9 @@ void Player::HandlePowerups(float deltaTime) {
 	}
 	else {
 		// Set sprite back to normal
-		m_sprite.SetRedTint(0.0f);
-		m_sprite.SetGreenTint(1.0f);
-		m_sprite.SetBlueTint(0.0f);
+		m_sprite->SetRedTint(1.0f);
+		m_sprite->SetGreenTint(1.0f);
+		m_sprite->SetBlueTint(1.0f);
 	}
 
 	// Zero Overheat
@@ -290,7 +325,7 @@ void Player::ResetPlayer()
 	m_isAttacking = false;
 
 	// Reset sprite colour
-	m_sprite.SetRedTint(0.0f);
-	m_sprite.SetGreenTint(1.0f);
-	m_sprite.SetBlueTint(0.0f);
+	m_sprite->SetRedTint(1.0f);
+	m_sprite->SetGreenTint(1.0f);
+	m_sprite->SetBlueTint(1.0f);
 }

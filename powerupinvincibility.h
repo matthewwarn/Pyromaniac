@@ -10,12 +10,8 @@ public:
 		: Powerup(position)
 	{
 		static Texture* invincibleTexture = new Texture();
-		invincibleTexture->Initialise("../assets/ball.png"); // Replace later
+		invincibleTexture->Initialise("../assets/potion1.png"); 
 		Initialise(*invincibleTexture);
-
-		m_sprite.SetRedTint(0.5f);
-		m_sprite.SetBlueTint(0.5f);
-		m_sprite.SetGreenTint(0.0f);
 
 		m_position = position;
 	}

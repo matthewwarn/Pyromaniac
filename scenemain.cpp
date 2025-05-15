@@ -147,35 +147,56 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 void
 SceneMain::Draw(Renderer& renderer)
 {
+	// Drawing Player
 	m_player.DrawSprite(renderer);
-	
+
+	// Drawing Enemies
 	for (auto& enemy : m_enemies) {
 		enemy->Draw(renderer);
 	}
 
+	// Drawing Powerups
 	for (auto& p : m_powerups)
 		p->Draw(renderer);
 
+	// Drawing Flames
+	AnimatedSprite* flame = m_player.GetFlameSprite();
+	Vector2 playerPos = m_player.GetPosition();
+	bool facingRight = (m_player.GetFacingDirection() == Player::Direction::Right);
+	const float attackRange = 350.0f;
+	const float attackWidth = 75.0f;
 
-	// Display Attack Hitbox
+	// Flip attack if facing left
+	float offsetX = 0.0f;
+	if (facingRight) {
+		offsetX = m_player.GetRadius();
+	}
+	else {
+		offsetX = -(attackRange + m_player.GetRadius());
+	}
+
+	Vector2 attackPos(playerPos.x + offsetX, playerPos.y - (attackWidth / 3));
+
+	if (m_player.m_isAttacking == true && m_player.CanAttack()) {
+		int centerX = static_cast<int>(attackPos.x + attackRange);
+		int centerY = static_cast<int>(attackPos.y + attackWidth);
+
+		int flameX = (centerX - flame->GetWidth() / 2) - 12;
+		if (!facingRight) {
+			flameX -= 10; 
+		}
+
+		int flameY = centerY - flame->GetHeight() / 2;
+
+
+		flame->SetX(flameX);
+		flame->SetY(flameY);
+		flame->SetFlipX(!facingRight);
+		flame->Draw(*m_pRenderer);
+	}
+
+	// Drawing Attack Hitbox
 	if (m_showHitbox && m_player.CanAttack()) {
-		Vector2 playerPos = m_player.GetPosition();
-		bool facingRight = (m_player.GetFacingDirection() == Player::Direction::Right);
-
-		const float attackRange = 350.0f;
-		const float attackWidth = 75.0f;
-
-		// Flip attack if facing left
-		float offsetX = 0.0f;
-		if (facingRight) {
-			offsetX = m_player.GetRadius();
-		}
-		else {
-			offsetX = -(attackRange + m_player.GetRadius());
-		}
-
-		Vector2 attackPos(playerPos.x + offsetX, playerPos.y - (attackWidth / 2));
-
 		ImDrawList* drawList = ImGui::GetBackgroundDrawList();
 		ImVec2 topLeft(attackPos.x, attackPos.y);
 		ImVec2 bottomRight(attackPos.x + attackRange, attackPos.y + attackWidth);
@@ -185,6 +206,7 @@ SceneMain::Draw(Renderer& renderer)
 
 	m_player.DrawHeatBar(renderer);
 
+	// Drawing Menus
 	if (m_gameState == GameState::Paused) {
 		DrawPauseMenu(renderer);
 	}
@@ -226,21 +248,29 @@ void SceneMain::SpawnEnemy()
 	}
 
 	Enemy* newEnemy = nullptr;
+	int colour = rand() % (2 - 1 + 1) + 1; // (max - min + 1) + min
 
 	switch (enemyType) {
 	case 1:
 		newEnemy = new EnemyType1();
-		newEnemy->Initialise(*m_pRenderer, "../assets/ball.png", m_screenWidth, m_screenHeight);
+		
+		if (colour == 1) {
+			newEnemy->Initialise(*m_pRenderer, "../assets/green_slime.png", m_screenWidth, m_screenHeight);
+		}
+		else {
+			newEnemy->Initialise(*m_pRenderer, "../assets/red_slime.png", m_screenWidth, m_screenHeight);
+		}
+
 		break;
 
 	case 2:
 		newEnemy = new EnemyType2();
-		newEnemy->Initialise(*m_pRenderer, "../assets/ball.png", m_screenWidth, m_screenHeight);
+		newEnemy->Initialise(*m_pRenderer, "../assets/bat_fly.png", m_screenWidth, m_screenHeight);
 		break;
 
 	case 3:
 		newEnemy = new EnemyType3();
-		newEnemy->Initialise(*m_pRenderer, "../assets/ball.png", m_screenWidth, m_screenHeight);
+		newEnemy->Initialise(*m_pRenderer, "../assets/bee.png", m_screenWidth, m_screenHeight);
 		break;
 	
 	default:
@@ -275,17 +305,23 @@ void SceneMain::processEnemies(float deltaTime) {
 	}
 
 	// Remove dead enemies
-	m_enemies.erase(
-		std::remove_if(m_enemies.begin(), m_enemies.end(),
-			[](Enemy* enemy) {
-				if (!enemy->IsAlive()) {
-					AudioManager::GetInstance().PlaySound("boom", 0.8f);
-					delete enemy;
-					return true;
+	for (auto it = m_enemies.begin(); it != m_enemies.end(); ) {
+		Enemy* enemy = *it;
+		if (!enemy->IsAlive()) { // If enemy dead
+			if (dynamic_cast<Boss*>(enemy)) { // If boss dead
+				if (!m_bossDeathTriggered) {
+					m_bossDeathTriggered = true;
+					m_bossDeathTimer = 0.0f;
 				}
-				return false;
-			}),
-		m_enemies.end());
+			}
+			AudioManager::GetInstance().PlaySound("boom", 0.8f);
+			delete enemy;
+			it = m_enemies.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
 }
 
 void SceneMain::handleAttackCollisions(float deltaTime) {
@@ -396,7 +432,17 @@ void SceneMain::processPowerups(float deltaTime)
 
 void SceneMain::KillAllEnemies() {
 	for (Enemy* enemy : m_enemies) {
-		enemy->TakeDamage(enemy->GetHealth()); // Kill enemy
+		if (dynamic_cast<Boss*>(enemy) == nullptr) {
+			// Not a boss, kill it
+			enemy->TakeDamage(enemy->GetHealth());
+		}
+	}
+}
+
+// Only runs with F3, kills boss as well.
+void SceneMain::DebugKillAllEnemies() {
+	for (Enemy* enemy : m_enemies) {
+		enemy->TakeDamage(enemy->GetHealth());
 	}
 }
 
@@ -454,6 +500,20 @@ void SceneMain::DrawWinMenu(Renderer& renderer) {
 	// Draw pause menu background
 	renderer.DrawRect(centerX, centerY, renderer.GetWidth(), renderer.GetHeight(), 1.0f, 0.75f, 0.8f, 0.5f);
 
+	Sprite* winSprite = renderer.CreateSprite("../assets/win.png");
+
+	if (winSprite) {
+		float targetWidth = m_screenWidth * 0.75;
+		float targetHeight = m_screenHeight * 0.75;
+		float scaleX = targetWidth / winSprite->GetWidth();
+		float scaleY = targetHeight / winSprite->GetHeight();
+		float scale = std::min(scaleX, scaleY);
+		winSprite->SetScale(scale);
+		winSprite->SetX(centerX);
+		winSprite->SetY(centerY);
+		winSprite->Draw(renderer);
+	}
+
 	if (m_scoreSprite) {
 		m_scoreSprite->Draw(renderer);
 	}
@@ -476,6 +536,9 @@ void SceneMain::ResetGame() {
 	m_gameTimer = 0.0f;
 	m_finalTime = 0.0f;
 	m_bossReached = false;
+	m_bossDeathAudioPlaying = false;
+	m_bossDeathTriggered = false;
+	m_bossDeathTimer = 0.0f;
 	
 	// Resetting Spawn Weights
 	for (int i = 0; i < 3; ++i) {
@@ -541,7 +604,7 @@ void SceneMain::Progression(float deltaTime) {
 			}
 
 			m_enemies.clear();
-			m_enemySpawnInterval = 5.0f;
+			m_enemySpawnInterval = 4.0f;
 
 			// Spawn Boss
 			m_finalBoss = new Boss();
@@ -556,26 +619,39 @@ void SceneMain::Progression(float deltaTime) {
 			m_bossReached = true;
 		}
 
-		// Win Screen
-		if (!m_finalBoss->IsAlive()) {
-			m_finalTime = m_gameTimer;
+		// Boss death delay
+		if (m_bossDeathTriggered) {
+			m_bossDeathTimer += deltaTime;
+			m_enemySpawnInterval = 0.0f;
+			KillAllEnemies();
 
-			// Create text with final score
-			if (!m_scoreSprite) {
-				std::ostringstream oss;
-				oss << std::setw(6)           // pad to at least 6 characters
-					<< std::setfill('0')      // filling character is '0'
-					<< m_score;              // the number
-
-				std::string scoreText = "Final Score: " + oss.str();
-				m_pRenderer->CreateStaticText(scoreText.c_str(), 72);
-				m_scoreSprite = m_pRenderer->CreateSprite(scoreText.c_str());
+			if (!m_bossDeathAudioPlaying) {
+				AudioManager::GetInstance().PlaySound("boss_death", 1.0f);
+				weaponAudioPlaying = true;
 			}
-			
-			m_scoreSprite->SetX(m_screenWidth / 2);
-			m_scoreSprite->SetY(m_screenHeight / 2);
 
-			m_gameState = GameState::Win;
+			if (m_bossDeathTimer >= m_bossDeathDelay) {
+				m_finalTime = m_gameTimer;
+
+				// TODO: CALCULATE FINAL SCORE 
+
+				// Create text with final score
+				if (!m_scoreSprite) {
+					std::ostringstream oss;
+					oss << std::setw(6)           // pad to at least 6 characters
+						<< std::setfill('0')      // filling character is '0'
+						<< m_score;              // the number
+
+					std::string scoreText = "Final Score: " + oss.str();
+					m_pRenderer->CreateStaticText(scoreText.c_str(), 72);
+					m_scoreSprite = m_pRenderer->CreateSprite(scoreText.c_str());
+				}
+
+				m_scoreSprite->SetX(m_screenWidth / 2);
+				m_scoreSprite->SetY(m_screenHeight / 2);
+
+				m_gameState = GameState::Win; // Stop Processing
+			}
 		}
 	}
 }
@@ -596,7 +672,7 @@ void SceneMain::DebugKeys(float deltaTime, InputSystem& inputSystem)
 	// KILL ALL ENEMIES - F3
 	if (inputSystem.GetKeyState(SDL_SCANCODE_F3) == BS_PRESSED)
 	{
-		KillAllEnemies();
+		DebugKillAllEnemies();
 	}
 	// SKIP TIMER - F4
 	if (inputSystem.GetKeyState(SDL_SCANCODE_F4) == BS_PRESSED)
@@ -628,15 +704,7 @@ SceneMain::LoadTextures() {
 	float scale = std::min(scaleX, scaleY); // Keep aspect ratio
 	m_pauseOverlaySprite->SetScale(scale);
 
-	// Load Player Texture
-	m_playerTexture = new Texture();
-	if (!m_playerTexture->Initialise("../assets/ball.png")) { // Replace later
-		LogManager::GetInstance().Log("Failed to load player texture!");
-		delete m_playerTexture;
-		m_playerTexture = nullptr;
-		return false;
-	}
-	m_player.Initialise(*m_pRenderer, *m_playerTexture);
+	m_player.Initialise(*m_pRenderer);
 
 	return true;
 }
