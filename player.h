@@ -20,12 +20,14 @@ public:
 	void DrawSprite(Renderer& renderer);
 	void Movement(float deltaTime, InputSystem& inputSystem);
 	
-
 	void TakeDamage();
 	bool IsAlive();
 
 	bool CanAttack();
 	void DrawHeatBar(Renderer& renderer);
+
+	int GetScore();
+	void EditScore(int points);
 
 	enum class Direction { Left, Right };
 
@@ -47,13 +49,14 @@ public:
 	// Member data:
 public:
 	int m_health;
+	int m_score = 0;
 
 	Direction m_facingDirection = Direction::Right;
 
 	float m_weaponHeat = 0.0f;
 	float m_heatIncreaseRate = 50.0f;
 	float m_heatDecreaseRate = 25.0f;
-	float m_maxHeat = 250.0f;
+	float m_maxHeat = 350.0f; // 7 Seconds of Fire
 	bool m_isAttacking;
 	bool m_attackAnimPlaying = false;
 	AnimatedSprite* GetFlameSprite() { return m_attackSprite; }

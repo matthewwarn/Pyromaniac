@@ -49,6 +49,7 @@ bool Player::Initialise(Renderer& renderer)
 	m_attackSprite->SetFrameDuration(0.1f);
 	m_attackSprite->SetLooping(true);
 	m_attackSprite->Animate();
+	m_attackSprite->SetAlpha(0.8f);
 	m_attackSprite->SetScale(0.25f);
 
 	m_health = 1;
@@ -59,6 +60,11 @@ bool Player::Initialise(Renderer& renderer)
 }
 
 void Player::Process(float deltaTime, InputSystem& inputSystem) {
+
+	if (!IsAlive()) {
+		return;
+	}
+
 	// Handle movement
 	Movement(deltaTime, inputSystem);
 
@@ -272,6 +278,16 @@ void Player::DrawHeatBar(Renderer& renderer) {
 	
 }
 
+int Player::GetScore()
+{
+	return m_score;
+}
+
+void Player::EditScore(int points) 
+{
+	m_score += points;
+}
+
 void Player::SetInvincible() {
 	m_isInvincible = true;
 }
@@ -286,9 +302,9 @@ void Player::HandlePowerups(float deltaTime) {
 		m_invincibleTimer -= deltaTime; // Decrease timer
 
 		// Visual Indicator
-		m_sprite->SetRedTint(0.0f);
-		m_sprite->SetGreenTint(1.0f);
-		m_sprite->SetBlueTint(1.0f);
+		m_sprite->SetRedTint(1.0f);
+		m_sprite->SetGreenTint(0.0f);
+		m_sprite->SetBlueTint(0.0f);
 
 		if (m_invincibleTimer <= 0.0f) {
 			m_isInvincible = false;
@@ -305,11 +321,12 @@ void Player::HandlePowerups(float deltaTime) {
 	// Zero Overheat
 	if (m_zeroOverheatActive) {
 		m_zeroOverheatTimer -= deltaTime;
+		m_isOverheated = false;
 		m_weaponHeat = 0.0f; // Keep heat at 0
 
 		if (m_zeroOverheatTimer <= 0.0f) {
 			m_zeroOverheatActive = false;
-			m_zeroOverheatTimer = 10.0f; // Reset timer
+			m_zeroOverheatTimer = 15.0f; // Reset timer
 		}
 	}
 }
@@ -317,6 +334,7 @@ void Player::HandlePowerups(float deltaTime) {
 void Player::ResetPlayer()
 {
 	m_health = 1;
+	m_score = 0;
 	m_isInvincible = false;
 	m_zeroOverheatActive = false;
 	m_weaponHeat = 0.0f;

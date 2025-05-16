@@ -214,7 +214,6 @@ void Game::Process(float deltaTime)
 	ButtonState backspaceState = m_pInputSystem->GetKeyState(SDL_SCANCODE_BACKSPACE);
 	if (backspaceState == BS_PRESSED)
 	{
-		std::cout << "Backspace pressed" << std::endl;
 		ToggleDebugWindow();
 	}
 }
@@ -274,7 +273,6 @@ void Game::DebugDraw
 void Game::ToggleDebugWindow
 ()
 {
-	std::cout << "Toggle Debug Window" << std::endl;
 	m_bShowDebugWindow = !m_bShowDebugWindow;
 	m_pInputSystem->ShowMouseCursor(m_bShowDebugWindow);
 }

@@ -19,6 +19,10 @@ public:
 	void ApplyPowerup(Player& player, SceneMain& scene) override {
 		player.SetInvincible();
 	}
+
+private:
+	int m_points = 5000;
+
 };
 
 #endif // POWERUPINVINCIBILITY_H

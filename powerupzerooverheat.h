@@ -19,6 +19,10 @@ public:
 	void ApplyPowerup(Player& player, SceneMain& scene) override {
 		player.SetZeroOverheat();
 	}
+
+private:
+	int m_points = 5000;
+
 };
 
 #endif // POWERUPZEROOVERHEAT_H

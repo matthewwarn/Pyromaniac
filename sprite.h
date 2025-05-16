@@ -34,6 +34,9 @@ public:
 	void SetAlpha(float alpha);
 	float GetAlpha() const;
 
+	bool GetFlipX() { return m_flipX; }
+	void SetFlipX(bool flip) { m_flipX = flip; }
+
 	void SetRedTint(float value);
 	float GetRedTint() const;
 	void SetGreenTint(float value);
@@ -69,6 +72,8 @@ protected:
 	float m_tintRed;
 	float m_tintGreen;
 	float m_tintBlue;
+
+	bool m_flipX = false;
 
 private:
 

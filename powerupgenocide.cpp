@@ -13,5 +13,6 @@ PowerupGenocide::PowerupGenocide(const Vector2& position)
 
 void PowerupGenocide::ApplyPowerup(Player& player, SceneMain& scene)
 {
+    scene.m_skipScore = true;
     scene.KillAllEnemies(); 
 }

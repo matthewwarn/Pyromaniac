@@ -113,6 +113,10 @@ float Enemy::GetHealth() {
 	return m_health;
 }
 
+int Enemy::GetPointsValue() {
+	return m_points;
+}
+
 void Enemy::SetSpeed(float newSpeed)
 {
 	m_speed = newSpeed;

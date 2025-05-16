@@ -31,6 +31,7 @@ public:
 	virtual int GetRadius();
 	float GetSpeed();
 	float GetHealth();
+	int GetPointsValue();
 	
 	void SetSpeed(float newSpeed);
 	void SetTakingDamage(bool takingDamage);
@@ -54,6 +55,8 @@ protected:
 
 	int m_screenWidth;
 	int m_screenHeight;
+
+	int m_points;
 
 	AnimatedSprite* m_animatedSprite = nullptr;
 };

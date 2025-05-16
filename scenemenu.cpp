@@ -92,6 +92,7 @@ SceneMenu::Draw(Renderer& renderer)
 
 	m_backgroundSprite->SetX(m_screenWidth / 2);
 	m_backgroundSprite->SetY(m_screenHeight / 2);
+	m_backgroundSprite->SetFlipX(false);
 
 	m_backgroundSprite->Draw(renderer);
 }

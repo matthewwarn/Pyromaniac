@@ -52,8 +52,12 @@ public:
 		return m_sprite.GetWidth() / 2.0f;
 	}
 
+	int GetPointsValue() {
+		return m_points;
+	}
+
 	bool IsExpired() const {
-		return m_lifetime > 15.0f;  // Return true if the powerup has been on screen for more than 15 seconds
+		return m_lifetime > 25.0f;  // Return true if the powerup has been on screen for more than 25 seconds
 	}
 
 // Member Data:
@@ -62,6 +66,7 @@ protected:
 	Vector2 m_position;
 	float m_radius = m_sprite.GetWidth() / 2.0f;
 	float m_lifetime;
+	int m_points;
 };
 
 #endif // POWERUP_H

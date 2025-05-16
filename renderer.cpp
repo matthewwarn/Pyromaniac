@@ -308,6 +308,8 @@ void Renderer::DrawSprite(Sprite& sprite)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	m_pSpriteShader->SetIntUniform("u_flipX", sprite.GetFlipX() ? 1 : 0);
+
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 

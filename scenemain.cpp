@@ -34,7 +34,6 @@ SceneMain::SceneMain()
 	, m_enemySpawnInterval(1.5f) // Default: 1.5
 	, m_gameTimer(0.0f)
 	, m_powerupSpawnTimer(30.0f) // Default: 30
-	, m_playerTexture(0)
 {
 }
 
@@ -83,6 +82,9 @@ SceneMain::Initialise(Renderer& renderer)
 	LoadTextures();
 	LoadAudio();
 
+	// Start Music
+	AudioManager::GetInstance().PlaySound("music", 1.0);
+
 	// Spawn in center
 	Vector2 startPos(m_screenWidth / 2, m_screenHeight / 2);
 	m_player.SetPosition(startPos);
@@ -102,6 +104,7 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 		if (inputSystem.GetKeyState(SDL_SCANCODE_ESCAPE) == BS_PRESSED ||
 			(inputSystem.GetController(0) && inputSystem.GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_BACK) == BS_PRESSED))
 		{
+			m_flame->SetFlipX(false);
 			ResetGame();
 			Game::GetInstance().SetCurrentScene(1); // Go back to menu
 		}
@@ -137,16 +140,19 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 
 	Progression(deltaTime);
 
-	// Check if player is alive
-	if (!m_player.IsAlive()) {
-		LogManager::GetInstance().Log("Player is dead!");
-		// Lose screen here
-	}
+	ProcessDeath(deltaTime);
 }
 
 void
 SceneMain::Draw(Renderer& renderer)
 {
+	// Drawing Background
+	m_backgroundSprite->SetX(m_screenWidth / 2);
+	m_backgroundSprite->SetY(m_screenHeight / 2);
+	m_backgroundSprite->SetFlipX(false);
+
+	m_backgroundSprite->Draw(renderer);
+
 	// Drawing Player
 	m_player.DrawSprite(renderer);
 
@@ -160,7 +166,7 @@ SceneMain::Draw(Renderer& renderer)
 		p->Draw(renderer);
 
 	// Drawing Flames
-	AnimatedSprite* flame = m_player.GetFlameSprite();
+	m_flame = m_player.GetFlameSprite();
 	Vector2 playerPos = m_player.GetPosition();
 	bool facingRight = (m_player.GetFacingDirection() == Player::Direction::Right);
 	const float attackRange = 350.0f;
@@ -181,18 +187,21 @@ SceneMain::Draw(Renderer& renderer)
 		int centerX = static_cast<int>(attackPos.x + attackRange);
 		int centerY = static_cast<int>(attackPos.y + attackWidth);
 
-		int flameX = (centerX - flame->GetWidth() / 2) - 12;
+		int flameX = (centerX - m_flame->GetWidth() / 2) - 12;
 		if (!facingRight) {
 			flameX -= 10; 
 		}
 
-		int flameY = centerY - flame->GetHeight() / 2;
+		int flameY = centerY - m_flame->GetHeight() / 2;
 
 
-		flame->SetX(flameX);
-		flame->SetY(flameY);
-		flame->SetFlipX(!facingRight);
-		flame->Draw(*m_pRenderer);
+		m_flame->SetX(flameX);
+		m_flame->SetY(flameY);
+		m_flame->SetFlipX(!facingRight);
+		m_flame->Draw(*m_pRenderer);
+	}
+	else {
+		m_flame->SetFlipX(facingRight);
 	}
 
 	// Drawing Attack Hitbox
@@ -208,10 +217,12 @@ SceneMain::Draw(Renderer& renderer)
 
 	// Drawing Menus
 	if (m_gameState == GameState::Paused) {
+		m_player.m_isAttacking = false;
 		DrawPauseMenu(renderer);
 	}
 
 	if (m_gameState == GameState::Win) {
+		m_player.m_isAttacking = false;
 		DrawWinMenu(renderer);
 	}
 }
@@ -295,11 +306,8 @@ void SceneMain::processEnemies(float deltaTime) {
 
 		if (distanceSq < (combinedRadius * combinedRadius)) {
 			m_player.TakeDamage();
-
-			if(m_player.GetHealth() == 0) {
-				ResetGame();
-				Game::GetInstance().SetCurrentScene(1); // Restart game
-			}
+			m_player.m_isAttacking = false;
+	
 			break; // Only damage player once per frame (for if I increase health later)
 		}
 	}
@@ -307,14 +315,23 @@ void SceneMain::processEnemies(float deltaTime) {
 	// Remove dead enemies
 	for (auto it = m_enemies.begin(); it != m_enemies.end(); ) {
 		Enemy* enemy = *it;
+
 		if (!enemy->IsAlive()) { // If enemy dead
-			if (dynamic_cast<Boss*>(enemy)) { // If boss dead
+			if (!m_skipScore) // If enemy dies from powerup
+			{
+				m_player.EditScore(enemy->GetPointsValue()); // Add score
+			}
+		
+			// If enemy is boss
+			if (dynamic_cast<Boss*>(enemy)) { 
 				if (!m_bossDeathTriggered) {
 					m_bossDeathTriggered = true;
 					m_bossDeathTimer = 0.0f;
 				}
 			}
-			AudioManager::GetInstance().PlaySound("boom", 0.8f);
+
+			AudioManager::GetInstance().PlaySound("plop", 1.0f);
+
 			delete enemy;
 			it = m_enemies.erase(it);
 		}
@@ -322,6 +339,8 @@ void SceneMain::processEnemies(float deltaTime) {
 			++it;
 		}
 	}
+
+	m_skipScore = false;
 }
 
 void SceneMain::handleAttackCollisions(float deltaTime) {
@@ -420,7 +439,9 @@ void SceneMain::processPowerups(float deltaTime)
 		float combinedRadius = (*it)->GetRadius() + m_player.GetRadius();
 
 		if (distanceSq < (combinedRadius * combinedRadius)) {
+			AudioManager::GetInstance().PlaySound("powerup", 1.0f);
 			(*it)->ApplyPowerup(m_player, *this);
+			m_player.EditScore((*it)->GetPointsValue());
 			delete* it; // Manual delete
 			it = m_powerups.erase(it);
 		}
@@ -441,6 +462,8 @@ void SceneMain::KillAllEnemies() {
 
 // Only runs with F3, kills boss as well.
 void SceneMain::DebugKillAllEnemies() {
+	m_skipScore = true;
+
 	for (Enemy* enemy : m_enemies) {
 		enemy->TakeDamage(enemy->GetHealth());
 	}
@@ -448,8 +471,9 @@ void SceneMain::DebugKillAllEnemies() {
 
 void SceneMain::GameStateCheck(InputSystem& inputSystem) {
 	// Check for pause button
-	if ((inputSystem.GetKeyState(SDL_SCANCODE_P) == BS_PRESSED) ||
-		(inputSystem.GetController(0) && inputSystem.GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_START) == BS_PRESSED)) {
+	if (((inputSystem.GetKeyState(SDL_SCANCODE_P) == BS_PRESSED) ||
+		(inputSystem.GetController(0) && inputSystem.GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_START) == BS_PRESSED)) &&
+		m_gameState != GameState::Win) {
 
 		if (m_gameState == GameState::Playing) {
 			m_gameState = GameState::Paused;
@@ -519,6 +543,27 @@ void SceneMain::DrawWinMenu(Renderer& renderer) {
 	}
 }
 
+void SceneMain::ProcessDeath(float deltaTime) {
+	if (m_player.GetHealth() <= 0) {
+		m_playerDeathTimer += deltaTime;
+		m_enemySpawnInterval = 0.0f;
+
+		AudioManager::GetInstance().StopSound("boss_music");
+		
+		if (!loseAudioPlaying) {
+			AudioManager::GetInstance().PlaySound("lose", 1.0f);
+			loseAudioPlaying = true;
+		}
+
+		if (m_playerDeathTimer >= 4.0f) {
+			m_flame->SetFlipX(false);
+			ResetGame();
+
+			Game::GetInstance().SetCurrentScene(1); // Restart game
+		}
+	}
+}
+
 void SceneMain::ResetGame() {
 	// Clearing Screen
 	for (Enemy* enemy : m_enemies) {
@@ -535,10 +580,14 @@ void SceneMain::ResetGame() {
 	m_enemySpawnInterval = m_baseEnemySpawnInterval;
 	m_gameTimer = 0.0f;
 	m_finalTime = 0.0f;
+	m_finalScore = 0;
 	m_bossReached = false;
 	m_bossDeathAudioPlaying = false;
 	m_bossDeathTriggered = false;
 	m_bossDeathTimer = 0.0f;
+	m_playerDeathTimer = 0.0f;
+	enemiesCleared = false;
+	m_skipScore = false;
 	
 	// Resetting Spawn Weights
 	for (int i = 0; i < 3; ++i) {
@@ -548,6 +597,12 @@ void SceneMain::ResetGame() {
 	// Reset Player
 	m_player.SetPosition(Vector2(m_screenWidth / 2, m_screenHeight / 2));
 	m_player.ResetPlayer();
+
+	// Reset Music
+	AudioManager::GetInstance().StopSound("boss_music");
+	AudioManager::GetInstance().PlaySound("music", 1.0f);
+	bossMusicPlaying = false;
+	musicPlaying = true;
 
 	// Unpause Game
 	m_gameState = GameState::Playing;
@@ -566,7 +621,7 @@ void SceneMain::Progression(float deltaTime) {
 
 	// MINUTE 2:
 	else if (m_gameTimer >= 60 && m_gameTimer <= 120.0f) {
-		m_enemySpawnInterval = 1.2f;
+		m_enemySpawnInterval = 1.6f;
 		m_enemySpawnWeights[0] = 0.85f;
 		m_enemySpawnWeights[1] = 0.15f;
 		m_enemySpawnWeights[2] = 0.0f;
@@ -574,7 +629,7 @@ void SceneMain::Progression(float deltaTime) {
 
 	// MINUTE 3:
 	else if (m_gameTimer >= 120 && m_gameTimer <= 180.0f) {
-		m_enemySpawnInterval = 1.0f;
+		m_enemySpawnInterval = 1.3f;
 		m_enemySpawnWeights[0] = 0.75f;
 		m_enemySpawnWeights[1] = 0.15f;
 		m_enemySpawnWeights[2] = 0.1f;
@@ -582,7 +637,7 @@ void SceneMain::Progression(float deltaTime) {
 
 	// MINUTE 4:
 	else if (m_gameTimer >= 180 && m_gameTimer <= 240.0f) {
-		m_enemySpawnInterval = 0.8f;
+		m_enemySpawnInterval = 1.0f;
 		m_enemySpawnWeights[0] = 0.65f;
 		m_enemySpawnWeights[1] = 0.20f;
 		m_enemySpawnWeights[2] = 0.15f;
@@ -590,7 +645,7 @@ void SceneMain::Progression(float deltaTime) {
 
 	// MINUTE 5:
 	else if (m_gameTimer >= 240 && m_gameTimer <= 300.0f) {
-		m_enemySpawnInterval = 0.7f;
+		m_enemySpawnInterval = 0.8f;
 		m_enemySpawnWeights[0] = 0.55f;
 		m_enemySpawnWeights[1] = 0.25f;
 		m_enemySpawnWeights[2] = 0.2f;
@@ -601,6 +656,13 @@ void SceneMain::Progression(float deltaTime) {
 		if (!m_bossReached) {
 			for (Enemy* enemy : m_enemies) {
 				delete enemy;
+			}
+
+			if (!bossMusicPlaying) {
+				AudioManager::GetInstance().StopSound("music");
+				AudioManager::GetInstance().PlaySound("boss_music", 1.0f);
+				bossMusicPlaying = true;
+				musicPlaying = false;
 			}
 
 			m_enemies.clear();
@@ -623,24 +685,32 @@ void SceneMain::Progression(float deltaTime) {
 		if (m_bossDeathTriggered) {
 			m_bossDeathTimer += deltaTime;
 			m_enemySpawnInterval = 0.0f;
-			KillAllEnemies();
+			m_skipScore = true;
+			m_player.SetInvincible();
+
+			if (!enemiesCleared)
+			{
+				KillAllEnemies();
+				enemiesCleared = true;
+			}
 
 			if (!m_bossDeathAudioPlaying) {
+
+				AudioManager::GetInstance().StopSound("boss_music");
 				AudioManager::GetInstance().PlaySound("boss_death", 1.0f);
-				weaponAudioPlaying = true;
+				m_bossDeathAudioPlaying = true;
 			}
 
 			if (m_bossDeathTimer >= m_bossDeathDelay) {
 				m_finalTime = m_gameTimer;
-
-				// TODO: CALCULATE FINAL SCORE 
+				m_finalScore = m_player.GetScore();
 
 				// Create text with final score
 				if (!m_scoreSprite) {
 					std::ostringstream oss;
 					oss << std::setw(6)           // pad to at least 6 characters
 						<< std::setfill('0')      // filling character is '0'
-						<< m_score;              // the number
+						<< m_finalScore;              // the number
 
 					std::string scoreText = "Final Score: " + oss.str();
 					m_pRenderer->CreateStaticText(scoreText.c_str(), 72);
@@ -649,6 +719,8 @@ void SceneMain::Progression(float deltaTime) {
 
 				m_scoreSprite->SetX(m_screenWidth / 2);
 				m_scoreSprite->SetY(m_screenHeight / 2);
+
+				AudioManager::GetInstance().PlaySound("victory", 1.0f);
 
 				m_gameState = GameState::Win; // Stop Processing
 			}
@@ -662,6 +734,7 @@ void SceneMain::DebugKeys(float deltaTime, InputSystem& inputSystem)
 	if (inputSystem.GetKeyState(SDL_SCANCODE_F1) == BS_PRESSED)
 	{
 		m_player.SetHealth(9999999);
+		m_player.SetInvincible();
 	}
 	// ZERO OVERHEAT - F2
 	if (inputSystem.GetKeyState(SDL_SCANCODE_F2) == BS_PRESSED)
@@ -694,15 +767,19 @@ void SceneMain::DebugKeys(float deltaTime, InputSystem& inputSystem)
 
 bool
 SceneMain::LoadTextures() {
-	// Load Pause Textures
+	// Load Pause Sprite
 	m_pauseOverlaySprite = m_pRenderer->CreateSprite("../assets/pause.png");
 
-	float targetWidth = m_screenWidth * 0.8;
-	float targetHeight = m_screenHeight * 0.8;
+	float targetWidth = m_screenWidth * 1.0;
+	float targetHeight = m_screenHeight * 1.0;
 	float scaleX = targetWidth / m_pauseOverlaySprite->GetWidth();
 	float scaleY = targetHeight / m_pauseOverlaySprite->GetHeight();
 	float scale = std::min(scaleX, scaleY); // Keep aspect ratio
-	m_pauseOverlaySprite->SetScale(scale);
+	m_pauseOverlaySprite->SetScale(scale * 0.8);
+
+	// Load Background Sprite
+	m_backgroundSprite = m_pRenderer->CreateSprite("../assets/background.png");
+	m_backgroundSprite->SetScale(scale * 1.2);
 
 	m_player.Initialise(*m_pRenderer);
 
@@ -712,11 +789,17 @@ SceneMain::LoadTextures() {
 void
 SceneMain::LoadAudio() 
 {
-	AudioManager::GetInstance().LoadSound("boom", "../assets/sound/boom.mp3", false);
+	AudioManager::GetInstance().LoadSound("plop", "../assets/sound/plop.mp3", false);
 	AudioManager::GetInstance().LoadSound("flamethrower", "../assets/sound/flamethrower.wav", false);
 	AudioManager::GetInstance().LoadSound("overheat", "../assets/sound/overheat.mp3", false);
+	AudioManager::GetInstance().LoadSound("powerup", "../assets/sound/powerup.mp3", false);
+	AudioManager::GetInstance().LoadSound("lose", "../assets/sound/lose.mp3", false);
+	AudioManager::GetInstance().LoadSound("boss_death", "../assets/sound/boss_death.mp3", false);
+	AudioManager::GetInstance().LoadSound("victory", "../assets/sound/victory.mp3", false);
+	AudioManager::GetInstance().LoadSound("music", "../assets/sound/music.mp3", true);
+	AudioManager::GetInstance().LoadSound("boss_music", "../assets/sound/boss_music.mp3", true);
 }
-
+	
 void
 SceneMain::ProcessWeaponAudio() 
 {

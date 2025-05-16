@@ -31,6 +31,8 @@ public:
 		m_speed = 60.0f;
 		m_health = 80.0f;
 
+		m_points = 1000;
+
 		return true;
 	}
 

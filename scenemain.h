@@ -57,6 +57,8 @@ public:
 	void DrawPauseMenu(Renderer& renderer);
 	void DrawWinMenu(Renderer& renderer);
 	
+	void ProcessDeath(float deltaTime);
+
 	void ResetGame();
 
 	void Progression(float deltaTime);
@@ -78,6 +80,7 @@ private:
 	// Member data:
 public:
 	GameState m_gameState;
+	bool m_skipScore = false;
 
 protected:
 	Renderer* m_pRenderer;
@@ -89,22 +92,26 @@ protected:
 	Sprite* m_enemy3Sprite;
 	Sprite* m_bossSprite;
 	Boss* m_finalBoss;
+	Sprite* m_backgroundSprite;
 
 	const float m_baseEnemySpawnWeights[3] = { 0.5f, 0.0f, 0.0f }; // Weights for enemy types
 	float m_enemySpawnWeights[3] = { 0.5f, 0.0f, 0.0f }; // Weights for enemy types
 
 	float m_enemySpawnTimer;
-	const float m_baseEnemySpawnInterval = 1.5f;
+	const float m_baseEnemySpawnInterval = 2.0f;
 	float m_enemySpawnInterval;
 
 	float m_gameTimer;
 	float m_finalTime;
-	float m_score = 1.0f;
+	int m_finalScore = 0;
 	Sprite* m_scoreSprite;
 
 	bool m_bossReached = false;
 
-	Texture* m_playerTexture;
+	AnimatedSprite* m_flame;
+
+	bool musicPlaying = true;
+	bool bossMusicPlaying = false;
 
 	int m_screenWidth;
 	int m_screenHeight;
@@ -118,11 +125,15 @@ protected:
 
 	bool weaponAudioPlaying = false;
 	bool overheatAudioPlaying = false;
+	bool loseAudioPlaying = false;
+
+	float m_playerDeathTimer = 0.0f;
 
 	bool m_bossDeathTriggered = false;
 	float m_bossDeathTimer = 0.0f;
-	const float m_bossDeathDelay = 4.0f; 
+	const float m_bossDeathDelay = 7.5f; 
 	bool m_bossDeathAudioPlaying = false;
+	bool enemiesCleared = false;
 
 private:
 	// IMGui Variables
