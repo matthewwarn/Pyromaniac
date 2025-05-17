@@ -158,6 +158,8 @@
     <ClCompile Include="logmanager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="matrix4.cpp" />
+    <ClCompile Include="particle.cpp" />
+    <ClCompile Include="particlemanager.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="powerupgenocide.cpp" />
     <ClCompile Include="powerupzerooverheat.h" />
@@ -199,6 +201,8 @@
     <ClInclude Include="inputsystem.h" />
     <ClInclude Include="logmanager.h" />
     <ClInclude Include="matrix4.h" />
+    <ClInclude Include="particle.h" />
+    <ClInclude Include="particlemanager.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="powerup.h" />
     <ClInclude Include="powerupgenocide.h" />

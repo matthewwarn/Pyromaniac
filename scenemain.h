@@ -14,6 +14,7 @@
 #include "powerupinvincibility.h"
 #include "powerupzerooverheat.h"
 #include "powerupgenocide.h"
+#include "particlemanager.h"
 
 // Library includes:
 #include <vector>
@@ -134,6 +135,10 @@ protected:
 	const float m_bossDeathDelay = 7.5f; 
 	bool m_bossDeathAudioPlaying = false;
 	bool enemiesCleared = false;
+
+	ParticleManager m_particleManager;
+	float flameParticleTimer = 0.0f;
+	float flameParticleDelay = 0.4f;
 
 private:
 	// IMGui Variables

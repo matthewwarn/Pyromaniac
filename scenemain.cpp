@@ -33,7 +33,7 @@ SceneMain::SceneMain()
 	: m_enemySpawnTimer(0.0f)
 	, m_enemySpawnInterval(1.5f) // Default: 1.5
 	, m_gameTimer(0.0f)
-	, m_powerupSpawnTimer(30.0f) // Default: 30
+	, m_powerupSpawnTimer(5.0f) // Default: 30
 {
 }
 
@@ -118,6 +118,7 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 	m_player.Process(deltaTime, inputSystem);
 
 	m_gameTimer += deltaTime;
+	flameParticleTimer += deltaTime;
 
 	// Spawn Enemies
 	m_enemySpawnTimer += deltaTime;
@@ -127,6 +128,8 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 	}
 
 	AudioManager::GetInstance().Process();
+
+	m_particleManager.Update(deltaTime);
 
 	ProcessWeaponAudio();
 
@@ -172,6 +175,7 @@ SceneMain::Draw(Renderer& renderer)
 	const float attackRange = 350.0f;
 	const float attackWidth = 75.0f;
 
+
 	// Flip attack if facing left
 	float offsetX = 0.0f;
 	if (facingRight) {
@@ -194,11 +198,15 @@ SceneMain::Draw(Renderer& renderer)
 
 		int flameY = centerY - m_flame->GetHeight() / 2;
 
-
 		m_flame->SetX(flameX);
 		m_flame->SetY(flameY);
 		m_flame->SetFlipX(!facingRight);
 		m_flame->Draw(*m_pRenderer);
+
+		if (flameParticleTimer >= flameParticleDelay) {
+			m_particleManager.SpawnParticles(ParticleType::Fire, Vector2(flameX, flameY), 1);
+			flameParticleTimer = 0;
+		}
 	}
 	else {
 		m_flame->SetFlipX(facingRight);
@@ -212,6 +220,8 @@ SceneMain::Draw(Renderer& renderer)
 
 		drawList->AddRectFilled(topLeft, bottomRight, IM_COL32(255, 0, 0, 180));
 	}
+
+	m_particleManager.Draw(*m_pRenderer);
 
 	m_player.DrawHeatBar(renderer);
 
@@ -412,6 +422,9 @@ void SceneMain::processPowerups(float deltaTime)
 			break;
 		}
 
+		// Spawn Particles
+		m_particleManager.SpawnParticles(ParticleType::Powerup, pos, 100);
+
 		m_powerupSpawnTimer = rand() % (60 - 40 + 1) + 40; // Random spawn time between 40 and 60 seconds
 	}
 
@@ -600,7 +613,9 @@ void SceneMain::ResetGame() {
 
 	// Reset Music
 	AudioManager::GetInstance().StopSound("boss_music");
-	AudioManager::GetInstance().PlaySound("music", 1.0f);
+	if (!musicPlaying) {
+		AudioManager::GetInstance().PlaySound("music", 1.0f);
+	}
 	bossMusicPlaying = false;
 	musicPlaying = true;
 
