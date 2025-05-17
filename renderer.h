@@ -16,6 +16,7 @@ struct SDL_Window;
 #include <SDL.h>
 #include "texture.h"
 #include <glew.h>
+#include "imgui/imgui.h"
 
 class Renderer
 {
@@ -60,6 +61,9 @@ private:
 
 	// Member data:
 public:
+	ImFont* m_bigFont = nullptr;
+	ImFont* m_mediumFont = nullptr;
+	ImFont* m_smallFont = nullptr;
 
 protected:
 	TextureManager* m_pTextureManager;

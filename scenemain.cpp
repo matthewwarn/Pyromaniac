@@ -66,6 +66,12 @@ SceneMain::~SceneMain()
 	}
 	m_enemies.clear();
 
+	for (auto& pair : m_digitSprites)
+	{
+		delete pair.second;
+	}
+	m_digitSprites.clear();
+
 	AudioManager::GetInstance().Shutdown();
 }
 
@@ -223,6 +229,10 @@ SceneMain::Draw(Renderer& renderer)
 
 	m_particleManager.Draw(*m_pRenderer);
 
+	DrawTimer();
+
+	DrawScore();
+
 	m_player.DrawHeatBar(renderer);
 
 	// Drawing Menus
@@ -247,8 +257,80 @@ void SceneMain::DebugDraw
 	int seconds = static_cast<int>(m_gameTimer) % 60;
 	ImGui::Text("Time: %02d:%02d", minutes, seconds);
 
-	//Toggle Flamethrower Hitbox
-	ImGui::Checkbox("Show Hitbox", &m_showHitbox);
+	ImGui::Separator();
+	ImGui::Text("Debug Actions:");
+
+	if (ImGui::Button("God Mode (F1)"))
+	{
+		m_player.SetHealth(9999999);
+		m_player.SetInvincible();
+	}
+	if (ImGui::Button("Zero Overheat (F2)"))
+	{
+		PowerupZeroOverheat* powerup = new PowerupZeroOverheat(Vector2(0, 0));
+		powerup->ApplyPowerup(m_player, *this);
+	}
+	if (ImGui::Button("Kill All Enemies (F3)"))
+	{
+		DebugKillAllEnemies();
+	}
+	if (ImGui::Button("Skip Timer to Next Minute (F4)"))
+	{
+		m_gameTimer = std::ceil(m_gameTimer / 60.0f) * 60.0f;
+	}
+	if (ImGui::Button("Toggle Hitbox Display (F5)"))
+	{
+		m_showHitbox = !m_showHitbox;
+	}
+	if (ImGui::Button("Restart Game (F12)"))
+	{
+		ResetGame();
+	}
+}
+
+void SceneMain::DrawTimer()
+{
+	int minutes = static_cast<int>(m_gameTimer) / 60;
+	int seconds = static_cast<int>(m_gameTimer) % 60;
+
+	char buf[16];
+	std::snprintf(buf, sizeof(buf), "%02d:%02d", minutes, seconds);
+
+	ImDrawList* dl = ImGui::GetForegroundDrawList();
+
+	ImVec2 pos = ImVec2(25.0f, 25.0f);
+
+	ImFont* font = m_pRenderer->m_bigFont;
+	float font_sz = 64.0f;
+
+	ImU32 col = IM_COL32(255, 255, 255, 255);
+
+	if (m_gameTimer >= 300) {
+		col = IM_COL32(255, 0, 0, 255);
+	}
+
+	dl->AddText(font, font_sz, pos, col, buf);
+}
+
+void SceneMain::DrawScore()
+{
+	int score = m_player.GetScore();
+
+	char scoreBuf[32];
+	std::snprintf(scoreBuf, sizeof(scoreBuf), "%06d", score);
+
+	const float xPos = 25.0f;
+	const float yTimer = 25.0f;
+	const float timerSize = 64.0f;
+	const float lineGap = 8.0f;
+	float       yScore = yTimer + timerSize + lineGap;
+
+	ImDrawList* dl = ImGui::GetForegroundDrawList();
+	ImFont* font = m_pRenderer->m_mediumFont;
+	float font_sz = 36.0f;
+	ImU32 col = IM_COL32(255, 255, 255, 255);
+
+	dl->AddText(font, font_sz, ImVec2(xPos, yScore), col, scoreBuf);
 }
 
 void SceneMain::SpawnEnemy() 

@@ -116,6 +116,31 @@ bool Renderer::Initialise(bool windowed, int width, int height)
 	ImGui_ImplOpenGL3_Init();
 	ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 
+	// Baking a version of the text at different sizes to prevent blur
+	ImGuiIO& io = ImGui::GetIO();
+	m_bigFont = io.Fonts->AddFontFromFileTTF("joystix_monospace.otf", 64.0f);
+	if (!m_bigFont)
+	{
+		LogManager::GetInstance().Log("Failed to load 64px font");
+	}
+
+	m_mediumFont = io.Fonts->AddFontFromFileTTF("joystix_monospace.otf", 36.0f);
+	if (!m_mediumFont)
+	{
+		LogManager::GetInstance().Log("Failed to load 36px font");
+	}
+
+	m_smallFont = io.Fonts->AddFontFromFileTTF("joystix_monospace.otf", 14.0f);
+	if (!m_smallFont)
+	{
+		LogManager::GetInstance().Log("Failed to load 14px font");
+	}
+
+	io.FontDefault = m_smallFont;
+
+	ImGui_ImplOpenGL3_DestroyDeviceObjects();
+	ImGui_ImplOpenGL3_CreateDeviceObjects();
+
 	m_pWhiteTexture = new Texture();
 	m_pWhiteTexture->SetID(CreateWhiteTexture());
 
@@ -373,7 +398,7 @@ void
 Renderer::CreateStaticText(const char* pText, int pointsize)
 {
 	Texture* pTexture = new Texture();
-	pTexture->LoadTextTexture(pText, "BPdotsSquareBold.otf", pointsize);
+	pTexture->LoadTextTexture(pText, "joystix_monospace.otf", pointsize);
 	m_pTextureManager->AddTexture(pText, pTexture);
 }
 

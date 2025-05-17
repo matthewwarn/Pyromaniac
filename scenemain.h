@@ -19,6 +19,7 @@
 // Library includes:
 #include <vector>
 #include <memory>
+#include <map>
 
 // Forward declarations:
 class Renderer;
@@ -35,6 +36,8 @@ public:
 	virtual bool Initialise(Renderer& renderer);
 	virtual void Draw(Renderer& renderer);
 	virtual void DebugDraw();
+	void DrawTimer();
+	void DrawScore();
 	virtual void Process(float deltaTime, InputSystem& inputSystem);
 	void SpawnEnemy();
 
@@ -139,6 +142,8 @@ protected:
 	ParticleManager m_particleManager;
 	float flameParticleTimer = 0.0f;
 	float flameParticleDelay = 0.4f;
+
+	std::map<char, Sprite*> m_digitSprites;
 
 private:
 	// IMGui Variables
