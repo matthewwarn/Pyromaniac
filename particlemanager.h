@@ -6,12 +6,20 @@
 
 #include <vector>
 
+class Renderer;
+class Sprite;
 
 class ParticleManager {
 public:
+	ParticleManager(Renderer& renderer);
+	~ParticleManager();
+
 	void Update(float dt);
 	void Draw(Renderer& renderer);
 	void SpawnParticles(ParticleType type, const Vector2& pos, int count);
+
+	Sprite* m_fireParticleSprite = nullptr;
+	Sprite* m_powerupParticleSprite = nullptr;
 
 private:
 	std::vector<Particle> m_particles;

@@ -1,4 +1,5 @@
 #include "particle.h"
+#include "particlemanager.h"
 #include "renderer.h"
 
 #include <cstdlib>
@@ -36,16 +37,16 @@ void Particle::Update(float deltaTime)
 	}
 }
 
-void Particle::Draw(Renderer& renderer)
+void Particle::Draw(Renderer& renderer, const ParticleManager& pm)
 {
 	// Determine Sprite
 	switch (m_type) 
 	{
 	case ParticleType::Fire:
-		m_particleSprite = renderer.CreateSprite("../assets/flame_particle.png");
+		m_particleSprite = pm.m_fireParticleSprite;
 		break;
 	case ParticleType::Powerup:
-		m_particleSprite = renderer.CreateSprite("../assets/ball.png");
+		m_particleSprite = pm.m_powerupParticleSprite;
 		break;
 	default:
 		break;

@@ -140,7 +140,7 @@ protected:
 	bool m_bossDeathAudioPlaying = false;
 	bool enemiesCleared = false;
 
-	ParticleManager m_particleManager;
+	std::unique_ptr<ParticleManager> m_particleManager;
 	float flameParticleTimer = 0.0f;
 	float flameParticleDelay = 0.4f;
 

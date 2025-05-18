@@ -1,5 +1,18 @@
 #include "particlemanager.h"
+#include "renderer.h"
 #include <cstdlib>
+
+ParticleManager::ParticleManager(Renderer& renderer) 
+{
+	m_fireParticleSprite = renderer.CreateSprite("../assets/flame_particle.png");
+	m_powerupParticleSprite = renderer.CreateSprite("../assets/ball.png");
+}
+
+ParticleManager::~ParticleManager()
+{
+	delete m_fireParticleSprite;
+	delete m_powerupParticleSprite;
+}
 
 static float RandFloat(float min, float max) 
 {
@@ -26,7 +39,7 @@ void ParticleManager::Draw(Renderer& renderer)
 {
 	for (auto& particle : m_particles)
 	{
-		particle.Draw(renderer);
+		particle.Draw(renderer, *this);
 	}
 }
 

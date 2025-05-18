@@ -87,8 +87,8 @@ SceneMain::Initialise(Renderer& renderer)
 	m_screenWidth = renderer.GetWidth();
 	m_screenHeight = renderer.GetHeight();
 
-
 	AudioManager::GetInstance().Initialise();
+	m_particleManager = std::make_unique<ParticleManager>(renderer);
 
 	LoadTextures();
 	LoadAudio();
@@ -139,7 +139,7 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 
 	AudioManager::GetInstance().Process();
 
-	m_particleManager.Update(deltaTime);
+	m_particleManager->Update(deltaTime);
 
 	ProcessWeaponAudio();
 
@@ -214,7 +214,7 @@ SceneMain::Draw(Renderer& renderer)
 		m_flame->Draw(*m_pRenderer);
 
 		if (flameParticleTimer >= flameParticleDelay) {
-			m_particleManager.SpawnParticles(ParticleType::Fire, Vector2(flameX, flameY), 1);
+			m_particleManager->SpawnParticles(ParticleType::Fire, Vector2(flameX, flameY), 1);
 			flameParticleTimer = 0;
 		}
 	}
@@ -231,7 +231,7 @@ SceneMain::Draw(Renderer& renderer)
 		drawList->AddRectFilled(topLeft, bottomRight, IM_COL32(255, 0, 0, 180));
 	}
 
-	m_particleManager.Draw(*m_pRenderer);
+	m_particleManager->Draw(*m_pRenderer);
 
 	DrawTimer();
 
@@ -243,11 +243,13 @@ SceneMain::Draw(Renderer& renderer)
 	if (m_gameState == GameState::Paused) {
 		m_player.m_isAttacking = false;
 		DrawPauseMenu(renderer);
+		return;
 	}
 
 	if (m_gameState == GameState::Win) {
 		m_player.m_isAttacking = false;
 		DrawWinMenu(renderer);
+		return;
 	}
 }
 
@@ -289,6 +291,7 @@ void SceneMain::DebugDraw
 	if (ImGui::Button("Restart Game (F12)"))
 	{
 		ResetGame();
+		return;
 	}
 }
 
@@ -509,7 +512,7 @@ void SceneMain::processPowerups(float deltaTime)
 		}
 
 		// Spawn Particles
-		m_particleManager.SpawnParticles(ParticleType::Powerup, pos, 100);
+		m_particleManager->SpawnParticles(ParticleType::Powerup, pos, 100);
 
 		m_powerupSpawnTimer = rand() % (60 - 40 + 1) + 40; // Random spawn time between 40 and 60 seconds
 	}
@@ -588,6 +591,7 @@ void SceneMain::GameStateCheck(InputSystem& inputSystem) {
 			inputSystem.GetController(0) && inputSystem.GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_LEFTSHOULDER) == BS_PRESSED)
 		{
 			ResetGame();
+			return;
 		}
 
 		// Quit Game
@@ -649,6 +653,7 @@ void SceneMain::ProcessDeath(float deltaTime) {
 		if (m_playerDeathTimer >= 4.0f) {
 			m_flame->SetFlipX(false);
 			ResetGame();
+			return;
 		}
 	}
 }
@@ -851,7 +856,9 @@ void SceneMain::DebugKeys(float deltaTime, InputSystem& inputSystem)
 	// ZERO OVERHEAT - F2
 	if (inputSystem.GetKeyState(SDL_SCANCODE_F2) == BS_PRESSED)
 	{
-		PowerupZeroOverheat* powerup = new PowerupZeroOverheat(Vector2(0, 0));
+		auto* powerup = new PowerupZeroOverheat(Vector2(0, 0));
+		m_powerups.push_back(powerup);
+
 		powerup->ApplyPowerup(m_player, *this);
 	}
 	// KILL ALL ENEMIES - F3
@@ -874,6 +881,7 @@ void SceneMain::DebugKeys(float deltaTime, InputSystem& inputSystem)
 	if (inputSystem.GetKeyState(SDL_SCANCODE_F12) == BS_PRESSED)
 	{
 		ResetGame();
+		return;
 	}
 }
 

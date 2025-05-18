@@ -6,6 +6,7 @@
 #include "sprite.h"
 
 class Renderer;
+class ParticleManager;
 
 enum class ParticleType
 {
@@ -19,7 +20,7 @@ public:
 	Particle(Vector2 position, Vector2 velocity, float lifetime, SDL_Color color, float size, ParticleType type);
 
 	void Update(float deltaTime);
-	void Draw(Renderer& renderer);
+	void Draw(Renderer& renderer, const ParticleManager& pm);
 
 	bool IsAlive() const;
 
