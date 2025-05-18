@@ -49,20 +49,25 @@ SceneMain::~SceneMain()
 		m_scoreSprite = nullptr;
 	}
 
-	if (m_finalBoss) {
-		delete m_finalBoss;
-		m_finalBoss = nullptr;
+	if (m_backgroundSprite) {
+		delete m_backgroundSprite;
+		m_backgroundSprite = nullptr;
+	}
+
+	if (m_winSprite) {
+		delete m_winSprite;
+		m_winSprite = nullptr;
 	}
 
 	for (Powerup* powerup : m_powerups) {
 		delete powerup;
-		powerup = nullptr;
 	}
 	m_powerups.clear();
 
 	for (Enemy* enemy : m_enemies) {
-		delete enemy;
-		enemy = nullptr;
+		if (enemy != m_finalBoss) {
+			delete enemy;
+		}
 	}
 	m_enemies.clear();
 
@@ -112,7 +117,6 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 		{
 			m_flame->SetFlipX(false);
 			ResetGame();
-			Game::GetInstance().SetCurrentScene(1); // Go back to menu
 		}
 		return; // Don't process if paused
 	}
@@ -619,18 +623,10 @@ void SceneMain::DrawWinMenu(Renderer& renderer) {
 	// Draw pause menu background
 	renderer.DrawRect(centerX, centerY, renderer.GetWidth(), renderer.GetHeight(), 1.0f, 0.75f, 0.8f, 0.5f);
 
-	Sprite* winSprite = renderer.CreateSprite("../assets/win.png");
-
-	if (winSprite) {
-		float targetWidth = m_screenWidth * 0.75;
-		float targetHeight = m_screenHeight * 0.75;
-		float scaleX = targetWidth / winSprite->GetWidth();
-		float scaleY = targetHeight / winSprite->GetHeight();
-		float scale = std::min(scaleX, scaleY);
-		winSprite->SetScale(scale);
-		winSprite->SetX(centerX);
-		winSprite->SetY(centerY);
-		winSprite->Draw(renderer);
+	if (m_winSprite) {
+		m_winSprite->SetX(centerX);
+		m_winSprite->SetY(centerY);
+		m_winSprite->Draw(renderer);
 	}
 
 	if (m_scoreSprite) {
@@ -653,8 +649,6 @@ void SceneMain::ProcessDeath(float deltaTime) {
 		if (m_playerDeathTimer >= 4.0f) {
 			m_flame->SetFlipX(false);
 			ResetGame();
-
-			Game::GetInstance().SetCurrentScene(1); // Restart game
 		}
 	}
 }
@@ -662,14 +656,34 @@ void SceneMain::ProcessDeath(float deltaTime) {
 void SceneMain::ResetGame() {
 	// Clearing Screen
 	for (Enemy* enemy : m_enemies) {
-		delete enemy;
+		if (enemy != m_finalBoss) {
+			delete enemy;
+		}
 	}
 	for (Powerup* powerup : m_powerups) {
 		delete powerup;
 	}
 	m_enemies.clear();
 	m_powerups.clear();
-	
+
+	// Delete final boss if exists
+	if (m_finalBoss) {
+		delete m_finalBoss;
+		m_finalBoss = nullptr;
+	}
+
+	// Delete score sprite
+	if (m_scoreSprite) {
+		delete m_scoreSprite;
+		m_scoreSprite = nullptr;
+	}
+
+	// Delete win sprite if dynamically created
+	if (m_winSprite) {
+		delete m_winSprite;
+		m_winSprite = nullptr;
+	}
+
 	// Resetting Variables
 	m_enemySpawnTimer = 0.0f;
 	m_enemySpawnInterval = m_baseEnemySpawnInterval;
@@ -683,6 +697,7 @@ void SceneMain::ResetGame() {
 	m_playerDeathTimer = 0.0f;
 	enemiesCleared = false;
 	m_skipScore = false;
+	loseAudioPlaying = false;
 	
 	// Resetting Spawn Weights
 	for (int i = 0; i < 3; ++i) {
@@ -809,7 +824,7 @@ void SceneMain::Progression(float deltaTime) {
 						<< std::setfill('0')      // filling character is '0'
 						<< m_finalScore;              // the number
 
-					std::string scoreText = "Final Score: " + oss.str();
+					std::string scoreText = "Score: " + oss.str();
 					m_pRenderer->CreateStaticText(scoreText.c_str(), 72);
 					m_scoreSprite = m_pRenderer->CreateSprite(scoreText.c_str());
 				}
@@ -879,6 +894,20 @@ SceneMain::LoadTextures() {
 	m_backgroundSprite->SetScale(scale * 1.2);
 
 	m_player.Initialise(*m_pRenderer);
+
+	// Load Win Sprite Once
+	if (!m_winSprite) {
+		m_winSprite = m_pRenderer->CreateSprite("../assets/win.png");
+		float targetWidth = m_screenWidth * 0.75;
+		float targetHeight = m_screenHeight * 0.75;
+		float scaleX = targetWidth / m_winSprite->GetWidth();
+		float scaleY = targetHeight / m_winSprite->GetHeight();
+		float scale = std::min(scaleX, scaleY);
+		m_winSprite->SetScale(scale);
+		if (!m_winSprite) {
+			LogManager::GetInstance().Log("Failed to load win.png");
+		}
+	}
 
 	return true;
 }

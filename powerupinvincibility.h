@@ -14,6 +14,7 @@ public:
 		Initialise(*invincibleTexture);
 
 		m_position = position;
+		m_points = 5000;
 	}
 
 	void ApplyPowerup(Player& player, SceneMain& scene) override {
@@ -21,8 +22,6 @@ public:
 	}
 
 private:
-	int m_points = 5000;
-
 };
 
 #endif // POWERUPINVINCIBILITY_H

@@ -97,6 +97,7 @@ protected:
 	Sprite* m_bossSprite;
 	Boss* m_finalBoss;
 	Sprite* m_backgroundSprite;
+	Sprite* m_winSprite;
 
 	const float m_baseEnemySpawnWeights[3] = { 0.5f, 0.0f, 0.0f }; // Weights for enemy types
 	float m_enemySpawnWeights[3] = { 0.5f, 0.0f, 0.0f }; // Weights for enemy types

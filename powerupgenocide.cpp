@@ -9,6 +9,7 @@ PowerupGenocide::PowerupGenocide(const Vector2& position)
     Initialise(*genocideTexture);
 
     m_position = position;
+    m_points = 5000;
 }
 
 void PowerupGenocide::ApplyPowerup(Player& player, SceneMain& scene)

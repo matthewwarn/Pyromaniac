@@ -13,6 +13,10 @@ Player::Player()
 
 Player::~Player()
 {
+	delete m_sprite;
+	delete m_attackSprite;
+	m_sprite = nullptr;
+	m_attackSprite = nullptr;
 }
 
 bool Player::Initialise(Renderer& renderer)
