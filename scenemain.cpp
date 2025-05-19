@@ -80,10 +80,17 @@ SceneMain::~SceneMain()
 
 	m_particleManager->Clear();
 
-	for (Enemy* enemy : m_enemies) {
-		if (enemy != m_finalBoss) {
-			delete enemy;
+	if (m_finalBoss) {
+		auto it = std::find(m_enemies.begin(), m_enemies.end(), m_finalBoss);
+		if (it != m_enemies.end()) {
+			m_enemies.erase(it);
 		}
+		delete m_finalBoss;
+		m_finalBoss = nullptr;
+	}
+
+	for (Enemy* enemy : m_enemies) {
+		delete enemy;
 	}
 	m_enemies.clear();
 
@@ -287,7 +294,9 @@ void SceneMain::DebugDraw
 	if (ImGui::Button("God Mode (F1)"))
 	{
 		m_player.SetHealth(9999999);
-		m_player.SetInvincible();
+		m_player.m_sprite->SetRedTint(1.0f);
+		m_player.m_sprite->SetGreenTint(0.0f);
+		m_player.m_sprite->SetBlueTint(0.0f);
 	}
 	if (ImGui::Button("Zero Overheat (F2)"))
 	{
@@ -444,7 +453,6 @@ void SceneMain::processEnemies(float deltaTime) {
 			if (dynamic_cast<Boss*>(enemy)) { 
 				if (!m_bossDeathTriggered) {
 					m_bossDeathTriggered = true;
-					m_disablePlayerInput = true;
 					m_bossDeathTimer = 0.0f;
 				}
 			}
@@ -680,8 +688,17 @@ void SceneMain::ProcessDeath(float deltaTime) {
 
 void SceneMain::ResetGame() {
 	// Clearing Screen
+	if (m_finalBoss) {
+		auto it = std::find(m_enemies.begin(), m_enemies.end(), m_finalBoss);
+		if (it != m_enemies.end()) {
+			m_enemies.erase(it);
+		}
+		//delete m_finalBoss;
+		m_finalBoss = nullptr;
+	}
+
 	for (Enemy* enemy : m_enemies) {
-		if (enemy != m_finalBoss) {
+		if (enemy != nullptr && enemy != m_finalBoss) {
 			delete enemy;
 		}
 	}
@@ -692,22 +709,11 @@ void SceneMain::ResetGame() {
 	m_powerups.clear();
 	m_particleManager->Clear();
 
-	// Delete final boss if exists
-	if (m_finalBoss) {
-		delete m_finalBoss;
-		m_finalBoss = nullptr;
-	}
 
 	// Delete score sprite
 	if (m_scoreSprite) {
 		delete m_scoreSprite;
 		m_scoreSprite = nullptr;
-	}
-
-	// Delete win sprite if dynamically created
-	if (m_winSprite) {
-		delete m_winSprite;
-		m_winSprite = nullptr;
 	}
 
 	// Resetting Variables

@@ -68,8 +68,9 @@ public:
 	float m_invincibleTimer = 10.0f;
 	float m_zeroOverheatTimer = 15.0f;
 
-private:
 	AnimatedSprite* m_sprite;
+
+private:
 	AnimatedSprite* m_attackSprite;
 	Vector2 m_position;
 	float m_speed;

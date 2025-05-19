@@ -322,14 +322,14 @@ void Player::HandlePowerups(float deltaTime) {
 
 		if (m_invincibleTimer <= 0.0f) {
 			m_isInvincible = false;
+
+			// Set sprite back to normal
+			m_sprite->SetRedTint(1.0f);
+			m_sprite->SetGreenTint(1.0f);
+			m_sprite->SetBlueTint(1.0f);
+
 			m_invincibleTimer = 10.0f; // Reset timer
 		}
-	}
-	else {
-		// Set sprite back to normal
-		m_sprite->SetRedTint(1.0f);
-		m_sprite->SetGreenTint(1.0f);
-		m_sprite->SetBlueTint(1.0f);
 	}
 
 	// Zero Overheat

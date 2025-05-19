@@ -29,6 +29,8 @@ Texture::~Texture()
 
 static void FlipSurfaceVertically(SDL_Surface* surf)
 {
+	if (!surf || !surf->pixels) return;
+
 	int pitch = surf->pitch;            // bytes per row
 	auto* temp = new uint8_t[pitch];    // one row buffer
 	auto* pixels = static_cast<uint8_t*>(surf->pixels);
@@ -144,7 +146,6 @@ Texture::LoadTextTexture(const char* text, const char* fontname, int pointsize)
 	LoadSurfaceIntoTexture(pSurface);
 	
 	TTF_CloseFont(pFont);
-	TTF_Quit();
 	pFont = 0;
 }
 
