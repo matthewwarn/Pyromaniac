@@ -49,7 +49,7 @@ protected:
 
 private:
 	Sprite(const Sprite& sprite);
-	Sprite& operator=(const Sprite& sprite);
+	//Sprite& operator=(const Sprite& sprite);
 
 	// Member data:
 public:

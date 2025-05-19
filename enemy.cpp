@@ -15,7 +15,8 @@ Enemy::Enemy()
 	, m_health(100)
 	, m_takingDamage(false)
 	, m_screenWidth(0)
-	, m_screenHeight(0) {
+	, m_screenHeight(0) 
+{
 }
 
 Enemy::~Enemy() {
@@ -55,8 +56,8 @@ void Enemy::Process(float deltaTime, const Vector2& playerPos) {
 }
 
 void Enemy::Draw(Renderer& renderer) {
-	m_animatedSprite->SetX(m_position.x);
-	m_animatedSprite->SetY(m_position.y);
+	m_animatedSprite->SetX(static_cast<int>(m_position.x));
+	m_animatedSprite->SetY(static_cast<int>(m_position.y));
 
 	m_animatedSprite->Draw(renderer);
 }
@@ -72,23 +73,23 @@ void Enemy::SpawnOffScreen() {
 
 	switch (side) {
 	case 0: // Top
-		m_position.x = rand() % m_screenWidth;
-		m_position.y = -200; 
+		m_position.x = static_cast<float>(rand() % m_screenWidth);
+		m_position.y = -200.0f; 
 		break;
 	
 	case 1: // Bottom
-		m_position.x = rand() % m_screenWidth;
-		m_position.y = m_screenHeight + 200;
+		m_position.x = static_cast<float>(rand() % m_screenWidth);
+		m_position.y = m_screenHeight + 200.0f;
 		break;
 	
 	case 2: // Left
-		m_position.x = -200;
-		m_position.y = rand() % m_screenHeight;
+		m_position.x = -200.0f;
+		m_position.y = static_cast<float>(rand() % m_screenHeight);
 		break;
 
 	case 3: // Right
-		m_position.x = m_screenWidth + 200;
-		m_position.y = rand() % m_screenHeight;
+		m_position.x = m_screenWidth + 200.0f;
+		m_position.y = static_cast<float>(rand() % m_screenHeight);;
 		break;
 	}
 }

@@ -57,13 +57,13 @@ void ParticleManager::SpawnParticles(ParticleType type, const Vector2& position,
 		{
 		case ParticleType::Fire:
 			velocity = Vector2(RandFloat(-250.0f, 250.0f), RandFloat(-100.0f, 100.0f));
-			size *= 0.7;
+			size *= 0.7f;
 			lifetime = RandFloat(1.5, 3.0);
 			break;
 		case ParticleType::Powerup:
 			lifetime = RandFloat(1.0f, 2.5f);
 			color = { 180, 0, 255, 255 }; // Purple
-			size *= 0.15;
+			size *= 0.15f;
 			break;
 		default:
 			break;
@@ -71,4 +71,9 @@ void ParticleManager::SpawnParticles(ParticleType type, const Vector2& position,
 
 		m_particles.emplace_back(position, velocity, lifetime, color, size, type);
 	}
+}
+
+void ParticleManager::Clear()
+{
+	m_particles.clear();
 }

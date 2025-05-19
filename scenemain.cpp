@@ -33,7 +33,21 @@ SceneMain::SceneMain()
 	: m_enemySpawnTimer(0.0f)
 	, m_enemySpawnInterval(1.5f) // Default: 1.5
 	, m_gameTimer(0.0f)
-	, m_powerupSpawnTimer(5.0f) // Default: 30
+	, m_powerupSpawnTimer(30.0f) // Default: 30
+	, m_bossSprite(nullptr)
+	, m_enemy1Sprite(nullptr)
+	, m_enemy2Sprite(nullptr)
+	, m_enemy3Sprite(nullptr)
+	, m_finalBoss(nullptr)
+	, m_finalTime(0.0f)
+	, m_flame(nullptr)
+	, m_gameState(GameState::Playing)
+	, m_pRenderer(nullptr)
+	, m_scoreSprite(nullptr)
+	, m_screenHeight(0)
+	, m_screenWidth(0)
+	, m_winSprite(nullptr)
+	, m_disablePlayerInput(false)
 {
 }
 
@@ -63,6 +77,8 @@ SceneMain::~SceneMain()
 		delete powerup;
 	}
 	m_powerups.clear();
+
+	m_particleManager->Clear();
 
 	for (Enemy* enemy : m_enemies) {
 		if (enemy != m_finalBoss) {
@@ -97,7 +113,7 @@ SceneMain::Initialise(Renderer& renderer)
 	AudioManager::GetInstance().PlaySound("music", 1.0);
 
 	// Spawn in center
-	Vector2 startPos(m_screenWidth / 2, m_screenHeight / 2);
+	Vector2 startPos(static_cast<float>(m_screenWidth / 2), static_cast<float>(m_screenHeight / 2));
 	m_player.SetPosition(startPos);
 
 	m_gameState = GameState::Playing;
@@ -125,7 +141,9 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 		return; // Don't process if paused
 	}
 
-	m_player.Process(deltaTime, inputSystem);
+	if (!m_disablePlayerInput) {
+		m_player.Process(deltaTime, inputSystem);
+	}
 
 	m_gameTimer += deltaTime;
 	flameParticleTimer += deltaTime;
@@ -187,12 +205,12 @@ SceneMain::Draw(Renderer& renderer)
 
 
 	// Flip attack if facing left
-	float offsetX = 0.0f;
+	int offsetX = 0;
 	if (facingRight) {
 		offsetX = m_player.GetRadius();
 	}
 	else {
-		offsetX = -(attackRange + m_player.GetRadius());
+		offsetX = -(static_cast<int>(attackRange) + m_player.GetRadius());
 	}
 
 	Vector2 attackPos(playerPos.x + offsetX, playerPos.y - (attackWidth / 3));
@@ -214,7 +232,7 @@ SceneMain::Draw(Renderer& renderer)
 		m_flame->Draw(*m_pRenderer);
 
 		if (flameParticleTimer >= flameParticleDelay) {
-			m_particleManager->SpawnParticles(ParticleType::Fire, Vector2(flameX, flameY), 1);
+			m_particleManager->SpawnParticles(ParticleType::Fire, Vector2(static_cast<float>(flameX), static_cast<float>(flameY)), 1);
 			flameParticleTimer = 0;
 		}
 	}
@@ -273,8 +291,9 @@ void SceneMain::DebugDraw
 	}
 	if (ImGui::Button("Zero Overheat (F2)"))
 	{
-		PowerupZeroOverheat* powerup = new PowerupZeroOverheat(Vector2(0, 0));
-		powerup->ApplyPowerup(m_player, *this);
+		PowerupZeroOverheat* powerup = new PowerupZeroOverheat(Vector2(m_player.GetPosition().x, m_player.GetPosition().y));
+		m_powerups.push_back(powerup);
+		//powerup->ApplyPowerup(m_player, *this);
 	}
 	if (ImGui::Button("Kill All Enemies (F3)"))
 	{
@@ -401,7 +420,7 @@ void SceneMain::processEnemies(float deltaTime) {
 		float dy = enemy->GetPosition().y - m_player.GetPosition().y;
 		float distanceSq = dx * dx + dy * dy;
 
-		float combinedRadius = enemy->GetRadius() + m_player.GetRadius();
+		int combinedRadius = enemy->GetRadius() + m_player.GetRadius();
 
 		if (distanceSq < (combinedRadius * combinedRadius)) {
 			m_player.TakeDamage();
@@ -425,6 +444,7 @@ void SceneMain::processEnemies(float deltaTime) {
 			if (dynamic_cast<Boss*>(enemy)) { 
 				if (!m_bossDeathTriggered) {
 					m_bossDeathTriggered = true;
+					m_disablePlayerInput = true;
 					m_bossDeathTimer = 0.0f;
 				}
 			}
@@ -446,11 +466,11 @@ void SceneMain::handleAttackCollisions(float deltaTime) {
 	Vector2 playerPos = m_player.GetPosition();
 	bool facingRight = (m_player.GetFacingDirection() == Player::Direction::Right);
 
-	float attackRange = 350.0f;
-	float attackWidth = 75.0f;
+	int attackRange = 350;
+	int attackWidth = 75;
 
 	// Flip attack if facing left
-	float offsetX = 0.0f;
+	int offsetX = 0;
 	if (facingRight) {
 		offsetX = m_player.GetRadius();
 	}
@@ -467,7 +487,7 @@ void SceneMain::handleAttackCollisions(float deltaTime) {
 
 	for (Enemy* enemy : m_enemies) {
 		Vector2 enemyPos = enemy->GetPosition();
-		float enemyRadius = enemy->GetRadius();
+		int enemyRadius = enemy->GetRadius();
 
 		// Check if enemy is within attack area
 		if (enemyPos.x + enemyRadius > attackLeft && enemyPos.x - enemyRadius < attackRight &&
@@ -514,7 +534,7 @@ void SceneMain::processPowerups(float deltaTime)
 		// Spawn Particles
 		m_particleManager->SpawnParticles(ParticleType::Powerup, pos, 100);
 
-		m_powerupSpawnTimer = rand() % (60 - 40 + 1) + 40; // Random spawn time between 40 and 60 seconds
+		m_powerupSpawnTimer = static_cast<float>(rand() % (60 - 40 + 1) + 40); // Random spawn time between 40 and 60 seconds
 	}
 
 	// Despawn powerups
@@ -612,7 +632,7 @@ void SceneMain::DrawPauseMenu(Renderer& renderer) {
 	int centerY = m_screenHeight / 2;
 
 	// Draw pause menu background
-	renderer.DrawRect(centerX, centerY, renderer.GetWidth(), renderer.GetHeight(), 0.0f, 0.0f, 0.0f, 0.5f);
+	renderer.DrawRect(centerX, centerY, static_cast<float>(renderer.GetWidth()), static_cast<float>(renderer.GetHeight()), 0.0f, 0.0f, 0.0f, 0.5f);
 
 	// Draw pause menu sprite
 	m_pauseOverlaySprite->SetX(centerX);
@@ -625,7 +645,7 @@ void SceneMain::DrawWinMenu(Renderer& renderer) {
 	int centerY = m_screenHeight / 2;
 
 	// Draw pause menu background
-	renderer.DrawRect(centerX, centerY, renderer.GetWidth(), renderer.GetHeight(), 1.0f, 0.75f, 0.8f, 0.5f);
+	renderer.DrawRect(centerX, centerY, static_cast<float>(renderer.GetWidth()), static_cast<float>(renderer.GetHeight()), 1.0f, 0.75f, 0.8f, 0.5f);
 
 	if (m_winSprite) {
 		m_winSprite->SetX(centerX);
@@ -670,6 +690,7 @@ void SceneMain::ResetGame() {
 	}
 	m_enemies.clear();
 	m_powerups.clear();
+	m_particleManager->Clear();
 
 	// Delete final boss if exists
 	if (m_finalBoss) {
@@ -703,6 +724,7 @@ void SceneMain::ResetGame() {
 	enemiesCleared = false;
 	m_skipScore = false;
 	loseAudioPlaying = false;
+	m_disablePlayerInput = false;
 	
 	// Resetting Spawn Weights
 	for (int i = 0; i < 3; ++i) {
@@ -710,7 +732,7 @@ void SceneMain::ResetGame() {
 	}
 
 	// Reset Player
-	m_player.SetPosition(Vector2(m_screenWidth / 2, m_screenHeight / 2));
+	m_player.SetPosition(Vector2(static_cast<float>(m_screenWidth / 2), static_cast<float>(m_screenHeight / 2)));
 	m_player.ResetPlayer();
 
 	// Reset Music
@@ -857,9 +879,8 @@ void SceneMain::DebugKeys(float deltaTime, InputSystem& inputSystem)
 	if (inputSystem.GetKeyState(SDL_SCANCODE_F2) == BS_PRESSED)
 	{
 		auto* powerup = new PowerupZeroOverheat(Vector2(0, 0));
-		m_powerups.push_back(powerup);
-
 		powerup->ApplyPowerup(m_player, *this);
+		delete powerup;
 	}
 	// KILL ALL ENEMIES - F3
 	if (inputSystem.GetKeyState(SDL_SCANCODE_F3) == BS_PRESSED)
@@ -890,24 +911,24 @@ SceneMain::LoadTextures() {
 	// Load Pause Sprite
 	m_pauseOverlaySprite = m_pRenderer->CreateSprite("../assets/pause.png");
 
-	float targetWidth = m_screenWidth * 1.0;
-	float targetHeight = m_screenHeight * 1.0;
+	float targetWidth = static_cast<float>(m_screenWidth) * 1.0f;
+	float targetHeight = static_cast<float>(m_screenHeight) * 1.0f;
 	float scaleX = targetWidth / m_pauseOverlaySprite->GetWidth();
 	float scaleY = targetHeight / m_pauseOverlaySprite->GetHeight();
 	float scale = std::min(scaleX, scaleY); // Keep aspect ratio
-	m_pauseOverlaySprite->SetScale(scale * 0.8);
+	m_pauseOverlaySprite->SetScale(scale * 0.8f);
 
 	// Load Background Sprite
 	m_backgroundSprite = m_pRenderer->CreateSprite("../assets/background.png");
-	m_backgroundSprite->SetScale(scale * 1.2);
+	m_backgroundSprite->SetScale(scale * 1.2f);
 
 	m_player.Initialise(*m_pRenderer);
 
 	// Load Win Sprite Once
 	if (!m_winSprite) {
 		m_winSprite = m_pRenderer->CreateSprite("../assets/win.png");
-		float targetWidth = m_screenWidth * 0.75;
-		float targetHeight = m_screenHeight * 0.75;
+		float targetWidth = m_screenWidth * 0.75f;
+		float targetHeight = m_screenHeight * 0.75f;
 		float scaleX = targetWidth / m_winSprite->GetWidth();
 		float scaleY = targetHeight / m_winSprite->GetHeight();
 		float scale = std::min(scaleX, scaleY);

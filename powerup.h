@@ -65,8 +65,8 @@ protected:
 	Sprite m_sprite;
 	Vector2 m_position;
 	float m_radius = m_sprite.GetWidth() / 2.0f;
-	float m_lifetime;
-	int m_points;
+	float m_lifetime = 0.0f;
+	int m_points = 0;
 };
 
 #endif // POWERUP_H

@@ -23,7 +23,7 @@ public:
 	ButtonState GetButtonState(SDL_GameControllerButton button);
 	float GetLeftTrigger() const;
 	float GetRightTrigger() const;
-	const Vector2& GetLeftStick() const;
+	const Vector2 GetLeftStick() const;
 	const Vector2& GetRightStick() const;
 	
 	bool IsConnected() const;

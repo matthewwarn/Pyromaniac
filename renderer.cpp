@@ -32,6 +32,8 @@ Renderer::Renderer()
 	, m_fClearRed(0.0f)
 	, m_fClearGreen(0.0f)
 	, m_fClearBlue(0.0f)
+	, m_pWhiteTexture(nullptr)
+	, m_pWindow(nullptr)
 {
 
 }
@@ -402,7 +404,7 @@ Renderer::CreateStaticText(const char* pText, int pointsize)
 	m_pTextureManager->AddTexture(pText, pTexture);
 }
 
-void Renderer::DrawRect(float x, float y, float width, float height,
+void Renderer::DrawRect(int x, int y, float width, float height,
 	float r, float g, float b, float a)
 {
 	// Set up a basic world transform
@@ -410,8 +412,8 @@ void Renderer::DrawRect(float x, float y, float width, float height,
 	SetIdentity(world);
 	world.m[0][0] = width;
 	world.m[1][1] = height;
-	world.m[3][0] = x;
-	world.m[3][1] = y;
+	world.m[3][0] = static_cast<float>(x);
+	world.m[3][1] = static_cast<float>(y);
 
 	m_pSpriteShader->SetMatrixUniform("uWorldTransform", world);
 	m_pWhiteTexture->SetActive();

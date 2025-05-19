@@ -56,7 +56,7 @@ protected:
 	int m_screenWidth;
 	int m_screenHeight;
 
-	int m_points;
+	int m_points = 0;
 
 	AnimatedSprite* m_animatedSprite = nullptr;
 };

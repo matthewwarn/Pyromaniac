@@ -21,7 +21,7 @@ public:
 	bool Initialise();
 	bool DoGameLoop();
 	void Quit();
-	void InitBalls();
+	//void InitBalls();
 	void ToggleDebugWindow();
 
 	void SetCurrentScene(int index);
@@ -38,7 +38,7 @@ private:
 	Game();
 	~Game();
 	Game(const Game& game);
-	Game& operator=(const Game& game);
+	//Game& operator=(const Game& game);
 
 	// Member data:
 public:

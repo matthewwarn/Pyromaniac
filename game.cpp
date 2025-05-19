@@ -39,7 +39,14 @@ void Game::DestroyInstance()
 	sm_pInstance = 0;
 }
 
-Game::Game() : m_pRenderer(0), m_bLooping(true)
+Game::Game() 
+	: m_pRenderer(0)
+	, m_bLooping(true)
+	, bbHeight(0.0f)
+	, bbWidth(0.0f)
+	, m_bShowDebugWindow(false)
+	, m_fElapsedSeconds(0.0f)
+	, m_fExecutionTime(0.0f)
 {
 
 }
@@ -76,7 +83,7 @@ bool Game::Initialise()
 	int bbHeight = 480;
 
 	m_pRenderer = new Renderer();
-	if (!m_pRenderer->Initialise(true, bbWidth, bbHeight))
+	if (!m_pRenderer->Initialise(false, bbWidth, bbHeight))
 	{
 		LogManager::GetInstance().Log("Renderer failed to initialise!");
 		return false;

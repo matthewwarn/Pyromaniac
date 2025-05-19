@@ -35,7 +35,7 @@ private:
 	SDL_Color m_color;
 	float m_size;
 	ParticleType m_type;
-	Sprite* m_particleSprite;
+	Sprite* m_particleSprite = nullptr;
 };
 
 #endif // PARTICLE_H

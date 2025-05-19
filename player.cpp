@@ -8,6 +8,16 @@
 Player::Player()
 	: m_position(0.0f, 0.0f)
 	, m_speed(200.0f)
+	, m_attackSprite(nullptr)
+	, m_health(1)
+	, m_isAttacking(false)
+	, m_isInvincible(false)
+	, m_screenHeight(0)
+	, m_screenWidth(0)
+	, m_sprite(nullptr)
+	, m_spriteHeight(0)
+	, m_spriteWidth(0)
+	, m_zeroOverheatActive(false)
 {
 }
 
@@ -160,10 +170,10 @@ void Player::Movement(float deltaTime, InputSystem& inputSystem) {
 	if (m_position.y < 0) m_position.y = 0;
 
 	if (m_position.x > m_screenWidth - (m_sprite->GetWidth() - (m_sprite->GetFrameWidth() * 0.8))) {
-		m_position.x = m_screenWidth - (m_sprite->GetWidth() - (m_sprite->GetFrameWidth() * 0.8));
+		m_position.x = static_cast<float>(m_screenWidth) - static_cast<float>((m_sprite->GetWidth() - (m_sprite->GetFrameWidth() * 0.8)));
 	}
 	if (m_position.y > m_screenHeight - (m_sprite->GetHeight() - (m_sprite->GetFrameHeight() * 0.8))) {
-		m_position.y = m_screenHeight - (m_sprite->GetHeight() - (m_sprite->GetFrameHeight()* 0.8));
+		m_position.y = static_cast<float>(m_screenHeight) - static_cast<float>((m_sprite->GetHeight() - (m_sprite->GetFrameHeight()* 0.8)));
 	}
 }
 
@@ -210,7 +220,7 @@ bool Player::IsAlive()
 
 int Player::GetRadius()
 {
-	return (m_sprite->GetFrameWidth() / 2) * m_sprite->GetScale() * 0.2;
+	return static_cast<int>((m_sprite->GetFrameWidth() / 2) * m_sprite->GetScale() * 0.2);
 }
 
 bool Player::CanAttack()
@@ -259,14 +269,14 @@ void Player::HandleFlamethrower(float deltaTime) {
 }
 
 void Player::DrawHeatBar(Renderer& renderer) {
-	int barWidth = 50;
-	int barHeight = m_screenHeight * 0.8;
-	int barX = m_screenWidth - barWidth;
+	float barWidth = 50.0f;
+	float barHeight = m_screenHeight * 0.8f;
+	int barX = m_screenWidth - static_cast<int>(barWidth);
 	int barY = m_screenHeight / 2;
 
 	float heatPercentage = m_weaponHeat / m_maxHeat;
-	int filledHeight = static_cast<int>(barHeight * heatPercentage);
-	int bottomY = barHeight;
+	float filledHeight = barHeight * heatPercentage;
+	int bottomY = static_cast<int>(barHeight);
 
 	renderer.DrawRect(barX, barY, barWidth, barHeight, 0.0f, 0.0f, 0.0f, 0.7f); // Draw empty bar
 

@@ -12,6 +12,7 @@ Particle::Particle(Vector2 position, Vector2 velocity, float lifetime, SDL_Color
 	, m_color(color)
 	, m_size(size)
 	, m_type(type)
+	, m_particleSprite(nullptr)
 {
 }
 
@@ -52,8 +53,8 @@ void Particle::Draw(Renderer& renderer, const ParticleManager& pm)
 		break;
 	}
 
-	m_particleSprite->SetX(m_position.x);
-	m_particleSprite->SetY(m_position.y);
+	m_particleSprite->SetX(static_cast<int>(m_position.x));
+	m_particleSprite->SetY(static_cast<int>(m_position.y));
 	m_particleSprite->SetScale(m_size);
 
 	m_particleSprite->SetRedTint(m_color.r / 255.0f);

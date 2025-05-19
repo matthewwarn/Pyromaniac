@@ -38,7 +38,7 @@ public:
 
 	int GetRadius() override
 	{
-		return (m_animatedSprite->GetFrameWidth() / 2) * m_animatedSprite->GetScale() * 0.8f;
+		return static_cast<int>((m_animatedSprite->GetFrameWidth() / 2) * m_animatedSprite->GetScale() * 0.8f);
 	}
 };
 

@@ -44,7 +44,7 @@ public:
 
 	void CreateStaticText(const char* pText, int pointsize);
 
-	void DrawRect(float x, float y, float width, float height, float r, float g, float b, float a);
+	void DrawRect(int x, int y, float width, float height, float r, float g, float b, float a);
 	GLuint CreateWhiteTexture();
 
 protected:

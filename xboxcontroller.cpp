@@ -104,8 +104,7 @@ XboxController::GetRightTrigger() const
 	return m_fRightTrigger;
 }
 
-const Vector2&
-XboxController::GetLeftStick() const
+const Vector2 XboxController::GetLeftStick() const
 {
 	Sint16 rawX = SDL_GameControllerGetAxis(m_pController, SDL_CONTROLLER_AXIS_LEFTX);
 	Sint16 rawY = SDL_GameControllerGetAxis(m_pController, SDL_CONTROLLER_AXIS_LEFTY);

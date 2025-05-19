@@ -96,7 +96,7 @@ protected:
 	Sprite* m_enemy3Sprite;
 	Sprite* m_bossSprite;
 	Boss* m_finalBoss;
-	Sprite* m_backgroundSprite;
+	Sprite* m_backgroundSprite = nullptr;
 	Sprite* m_winSprite;
 
 	const float m_baseEnemySpawnWeights[3] = { 0.5f, 0.0f, 0.0f }; // Weights for enemy types
@@ -145,6 +145,8 @@ protected:
 	float flameParticleDelay = 0.4f;
 
 	std::map<char, Sprite*> m_digitSprites;
+
+	bool m_disablePlayerInput = false;
 
 private:
 	// IMGui Variables

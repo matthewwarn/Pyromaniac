@@ -17,6 +17,7 @@ public:
 	void Update(float dt);
 	void Draw(Renderer& renderer);
 	void SpawnParticles(ParticleType type, const Vector2& pos, int count);
+	void Clear();
 
 	Sprite* m_fireParticleSprite = nullptr;
 	Sprite* m_powerupParticleSprite = nullptr;
