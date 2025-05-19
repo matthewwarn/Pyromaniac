@@ -1,45 +1,166 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="Enemy">
-    <Position X="4.75" Y="2" Width="1.5" />
+    <Position X="22.25" Y="0.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>I4AAAgAAACAAQwAAAgAAARAiQAMAAgAAAAAAgCgAAAQ=</HashCode>
+      <HashCode>I4AAAgAAACAAQwAAAgAABRAiQAMAAggIAAAAgCgAAAQ=</HashCode>
       <FileName>enemy.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="EnemyType1">
-    <Position X="6.75" Y="2" Width="1.5" />
+    <Position X="24.25" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAQAAAgAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAA=</HashCode>
       <FileName>enemytype1.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Powerup">
-    <Position X="10.75" Y="2.75" Width="1.5" />
+    <Position X="22.25" Y="7.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAAAJACIIAwAIggAAAAAgAAAAAgAAAAAAAAgAAAA=</HashCode>
+      <HashCode>AAAAAAAJACIIAwAIggAABAAgAAAAAggAAAAAAAgAAAA=</HashCode>
       <FileName>powerup.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="PowerupGenocide">
-    <Position X="13.25" Y="3.75" Width="2" />
+  <Class Name="PowerupGenocide" Collapsed="true">
+    <Position X="24.25" Y="9.25" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAACAIAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>powerupgenocide.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="PowerupInvincibility">
-    <Position X="13.25" Y="2" Width="2" />
+  <Class Name="PowerupInvincibility" Collapsed="true">
+    <Position X="24.25" Y="8" Width="2" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAEAAAAAAAAAA=</HashCode>
       <FileName>powerupinvincibility.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="PowerupZeroOverheat">
-    <Position X="13.25" Y="5.5" Width="2" />
+  <Class Name="PowerupZeroOverheat" Collapsed="true">
+    <Position X="24.25" Y="10.5" Width="2" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>powerupzerooverheat.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EnemyType2" Collapsed="true">
+    <Position X="24.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAA=</HashCode>
+      <FileName>enemytype2.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EnemyType3" Collapsed="true">
+    <Position X="24.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAA=</HashCode>
+      <FileName>enemytype3.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Boss" Collapsed="true">
+    <Position X="24.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAgAAAA=</HashCode>
+      <FileName>boss.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Game">
+    <Position X="10.75" Y="3.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="Game::Ball" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>game.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAQAgAGIgAAEAwAwIihgAAAARAiBQSEQAAQBABAAEQE=</HashCode>
+      <FileName>game.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SceneMain">
+    <Position X="16" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="SceneMain::GameState" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>scenemain.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>QAAFAMQVFQUQywU2BsSEQg8JZAKAAEAYwgqiAAgymIM=</HashCode>
+      <FileName>scenemain.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scene">
+    <Position X="13.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAwAAggAAAAAAQAAAAAAQAAAgAAAAAAA=</HashCode>
+      <FileName>scene.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SceneMenu">
+    <Position X="17.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAwAkAgAAQAAAQAIAAgAQAAAAAAAAAAA=</HashCode>
+      <FileName>scenemenu.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SceneSplash">
+    <Position X="19.5" Y="0.5" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="SceneSplash::SplashState" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>scenesplash.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>ACDAAAAIAAABEwAkAgAAQAAiQAIgAAAQAAAAAAAQAAQ=</HashCode>
+      <FileName>scenesplash.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AudioManager">
+    <Position X="8.75" Y="3.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAQAAAiAAAQgKBAAAAAAAAAECAACAAAA=</HashCode>
+      <FileName>audiomanager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AnimatedSprite">
+    <Position X="12.75" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAACgIAAQAoQQwBBAgAAAgRSQRgGCAAQIAAgAEAAAAA=</HashCode>
+      <FileName>animatedsprite.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sprite">
+    <Position X="15.75" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>SBAEAAERAIgQGyYFAgAAAgBCwAEBAACQYAAAAmQAAAI=</HashCode>
+      <FileName>sprite.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Texture" Collapsed="true">
+    <Position X="18.75" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQIAAAAAAAAgQAAAAAEAABAAAAAIAAAQAIgAOAAAAA=</HashCode>
+      <FileName>texture.h</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Segoe UI" Size="9" />
