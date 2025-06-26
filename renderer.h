@@ -1,4 +1,3 @@
-// COMP710 GP Framework 2022
 #ifndef RENDERER_H
 #define RENDERER_H
 
@@ -46,10 +45,10 @@ public:
 
 	void DrawRect(int x, int y, float width, float height, float r, float g, float b, float a);
 	GLuint CreateWhiteTexture();
+	void ToggleFullscreen();
 
 protected:
 	bool InitialiseOpenGL(int screenWidth, int screenHeight);
-	void SetFullscreen(bool fullscreen);
 
 	void LogSdlError();
 
@@ -64,6 +63,8 @@ public:
 	ImFont* m_bigFont = nullptr;
 	ImFont* m_mediumFont = nullptr;
 	ImFont* m_smallFont = nullptr;
+
+	bool m_fullscreen;
 
 protected:
 	TextureManager* m_pTextureManager;

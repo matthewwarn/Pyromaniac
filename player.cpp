@@ -73,11 +73,14 @@ bool Player::Initialise(Renderer& renderer)
 	return true;
 }
 
-void Player::Process(float deltaTime, InputSystem& inputSystem) {
+void Player::Process(float deltaTime, InputSystem& inputSystem, Renderer& renderer) {
 
 	if (!IsAlive()) {
 		return;
 	}
+
+	m_screenWidth = renderer.GetWidth();
+	m_screenHeight = renderer.GetHeight();
 
 	// Handle movement
 	Movement(deltaTime, inputSystem);
@@ -269,10 +272,26 @@ void Player::HandleFlamethrower(float deltaTime) {
 }
 
 void Player::DrawHeatBar(Renderer& renderer) {
-	float barWidth = 50.0f;
-	float barHeight = m_screenHeight * 0.8f;
-	int barX = m_screenWidth - static_cast<int>(barWidth);
-	int barY = m_screenHeight / 2;
+	int screenW = renderer.GetWidth();
+	int screenH = renderer.GetHeight();
+
+	float barWidth;
+	float barHeight;
+	int barX;
+	int barY;
+
+	if (renderer.m_fullscreen) {
+		barWidth = 50.0f;
+		barHeight = screenH * 0.8f;
+		barX = screenW - static_cast<int>(barWidth);
+		barY = screenH / 2;
+	}
+	else {
+		barWidth = 50.0f;
+		barHeight = screenH * 0.8f;
+		barX = static_cast<int>(screenW - (barWidth * 2.5f));
+		barY = static_cast<int>(screenH * 0.53f);
+	}
 
 	float heatPercentage = m_weaponHeat / m_maxHeat;
 	float filledHeight = barHeight * heatPercentage;

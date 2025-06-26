@@ -74,6 +74,12 @@ SceneMenu::Process(float deltaTime, InputSystem& inputSystem)
 		Game::GetInstance().SetCurrentScene(2); // Start the game
 	}
 
+	// FULLSCREEN - F11
+	if (inputSystem.GetKeyState(SDL_SCANCODE_F11) == BS_PRESSED)
+	{
+		m_pRenderer->ToggleFullscreen();
+	}
+
 	if (inputSystem.GetKeyState(SDL_SCANCODE_ESCAPE) == BS_PRESSED ||
 		inputSystem.GetController(0) && inputSystem.GetController(0)->GetButtonState(SDL_CONTROLLER_BUTTON_BACK) == BS_PRESSED)
 	{
@@ -84,14 +90,17 @@ SceneMenu::Process(float deltaTime, InputSystem& inputSystem)
 void
 SceneMenu::Draw(Renderer& renderer)
 {
+	int screenW = renderer.GetWidth();
+	int screenH = renderer.GetHeight();
+
 	// Draw the background
-	float scaleX = static_cast<float>(m_screenWidth) / m_backgroundTexture->GetWidth();
-	float scaleY = static_cast<float>(m_screenHeight) / m_backgroundTexture->GetHeight();
+	float scaleX = static_cast<float>(screenW) / m_backgroundTexture->GetWidth();
+	float scaleY = static_cast<float>(screenH) / m_backgroundTexture->GetHeight();
 	float scale = std::max(scaleX, scaleY);
 	m_backgroundSprite->SetScale(scale);
 
-	m_backgroundSprite->SetX(m_screenWidth / 2);
-	m_backgroundSprite->SetY(m_screenHeight / 2);
+	m_backgroundSprite->SetX(screenW / 2);
+	m_backgroundSprite->SetY(screenH / 2);
 	m_backgroundSprite->SetFlipX(false);
 
 	m_backgroundSprite->Draw(renderer);

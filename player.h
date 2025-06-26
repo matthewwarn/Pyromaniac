@@ -16,7 +16,7 @@ public:
 	Player();
 	~Player();
 	bool Initialise(Renderer& renderer);
-	void Process(float deltaTime, InputSystem& inputSystem);
+	void Process(float deltaTime, InputSystem& inputSystem, Renderer& renderer);
 	void DrawSprite(Renderer& renderer);
 	void Movement(float deltaTime, InputSystem& inputSystem);
 	
@@ -55,14 +55,14 @@ public:
 
 	float m_weaponHeat = 0.0f;
 	float m_heatIncreaseRate = 50.0f;
-	float m_heatDecreaseRate = 25.0f;
+	float m_heatDecreaseRate = 35.0f;
 	float m_maxHeat = 350.0f; // 7 Seconds of Fire
 	bool m_isAttacking;
 	bool m_attackAnimPlaying = false;
 	AnimatedSprite* GetFlameSprite() { return m_attackSprite; }
 
 	bool m_isOverheated = false;
-	float m_overheatCooldown = 5.0f;
+	float m_overheatCooldown = 4.5f;
 	float m_currentOverheatCooldown = 0.0f;
 
 	float m_invincibleTimer = 10.0f;
@@ -70,13 +70,14 @@ public:
 
 	AnimatedSprite* m_sprite;
 
+	int m_screenWidth;
+	int m_screenHeight;
+
 private:
 	AnimatedSprite* m_attackSprite;
 	Vector2 m_position;
 	float m_speed;
 
-	int m_screenWidth;
-	int m_screenHeight;
 	int m_spriteWidth;
 	int m_spriteHeight;
 

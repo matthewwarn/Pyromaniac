@@ -25,7 +25,6 @@ SceneSplash::SceneSplash()
 SceneSplash::~SceneSplash()
 {
 	delete m_backgroundSprite;
-	delete m_autSprite;
 	delete m_fmodSprite;
 }
 
@@ -47,13 +46,6 @@ SceneSplash::Initialise(Renderer& renderer)
 	float scaleY = static_cast<float>(m_screenHeight) / m_backgroundSprite->GetHeight();
 	float scale = std::max(scaleX, scaleY);
 	m_backgroundSprite->SetScale(scale);
-
-	// Load the AUT texture
-	m_autSprite = renderer.CreateSprite("../assets/aut.png");
-	if (!m_autSprite) {
-		LogManager::GetInstance().Log("Failed to create AUT sprite!");
-		return false;
-	}
 
 	// Load the FMOD texture
 	m_fmodSprite = renderer.CreateSprite("../assets/fmod_white.png");
@@ -92,35 +84,10 @@ SceneSplash::Process(float deltaTime, InputSystem& inputSystem)
 	switch (m_state) {
 	case SplashState::Waiting:
 		if (m_timer >= 1.0f) {
-			m_state = SplashState::FadeInAUT;
+			m_state = SplashState::FadeInFMOD;
 			m_timer = 0.0f;
 		}
 		break;
-
-	case SplashState::FadeInAUT:
-		m_alpha = std::min(1.0f, m_timer / FADE_DURATION);
-		if (m_timer >= FADE_DURATION) {
-			m_state = SplashState::ShowAUT; // Switch to next state
-			m_timer = 0.0f;
-		}
-		break;
-
-	case SplashState::ShowAUT:
-		m_alpha = 1.0f;
-		if (m_timer >= SHOW_DURATION) {
-			m_state = SplashState::FadeOutAUT; 
-			m_timer = 0.0f;
-		}
-		break;
-
-	case SplashState::FadeOutAUT:
-		m_alpha = 1.0f - std::min(1.0f, m_timer / FADE_DURATION);
-		if (m_timer >= FADE_DURATION) {
-			m_state = SplashState::FadeInFMOD; 
-			m_timer = 0.0f;
-		}
-		break;
-
 	case SplashState::FadeInFMOD:
 		m_alpha = std::min(1.0f, m_timer / FADE_DURATION);
 		if (m_timer >= FADE_DURATION) {
@@ -171,14 +138,7 @@ SceneSplash::Draw(Renderer& renderer)
 
 void
 SceneSplash::DrawLogos() {
-	if (m_state == SplashState::FadeInAUT || m_state == SplashState::ShowAUT || m_state == SplashState::FadeOutAUT) {
-		m_autSprite->SetAlpha(m_alpha);
-		m_autSprite->SetX(m_screenWidth / 2);
-		m_autSprite->SetY(m_screenHeight / 2);
-		m_autSprite->SetScale(1.5f);
-		m_autSprite->Draw(*m_pRenderer);
-	}
-	else if (m_state == SplashState::FadeInFMOD || m_state == SplashState::ShowFMOD || m_state == SplashState::FadeOutFMOD) {
+	if (m_state == SplashState::FadeInFMOD || m_state == SplashState::ShowFMOD || m_state == SplashState::FadeOutFMOD) {
 		m_fmodSprite->SetAlpha(m_alpha);
 		m_fmodSprite->SetX(m_screenWidth / 2);
 		m_fmodSprite->SetY(m_screenHeight / 2);

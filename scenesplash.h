@@ -36,9 +36,6 @@ private:
 public:
 	enum class SplashState {
 		Waiting,
-		FadeInAUT,
-		ShowAUT,
-		FadeOutAUT,
 		FadeInFMOD,
 		ShowFMOD,
 		FadeOutFMOD,
@@ -61,7 +58,6 @@ protected:
 
 	std::vector<Sprite*> m_sprites;
 	Sprite* m_backgroundSprite;
-	Sprite* m_autSprite;
 	Sprite* m_fmodSprite;
 
 private:

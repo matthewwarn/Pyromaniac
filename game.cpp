@@ -263,7 +263,7 @@ void Game::DebugDraw
 
 		ImGui::Begin("Debug Window", &open, ImGuiWindowFlags_MenuBar);
 
-		ImGui::Text("COMP710 GP Framework (%s)", "2025, S1");
+		ImGui::Text("Pyromaniac");
 
 		if (ImGui::Button("Quit"))
 		{

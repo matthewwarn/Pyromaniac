@@ -149,7 +149,7 @@ SceneMain::Process(float deltaTime, InputSystem& inputSystem)
 	}
 
 	if (!m_disablePlayerInput) {
-		m_player.Process(deltaTime, inputSystem);
+		m_player.Process(deltaTime, inputSystem, *m_pRenderer);
 	}
 
 	m_gameTimer += deltaTime;
@@ -315,6 +315,10 @@ void SceneMain::DebugDraw
 	if (ImGui::Button("Toggle Hitbox Display (F5)"))
 	{
 		m_showHitbox = !m_showHitbox;
+	}
+	if (ImGui::Button("Toggle Fullscreen (F11)"))
+	{
+		m_pRenderer->ToggleFullscreen();
 	}
 	if (ImGui::Button("Restart Game (F12)"))
 	{
@@ -636,8 +640,8 @@ SceneMain::GameState SceneMain::GetGameState() const {
 }
 
 void SceneMain::DrawPauseMenu(Renderer& renderer) {
-	int centerX = m_screenWidth / 2;
-	int centerY = m_screenHeight / 2;
+	int centerX = renderer.GetWidth() / 2;
+	int centerY = renderer.GetHeight() / 2;
 
 	// Draw pause menu background
 	renderer.DrawRect(centerX, centerY, static_cast<float>(renderer.GetWidth()), static_cast<float>(renderer.GetHeight()), 0.0f, 0.0f, 0.0f, 0.5f);
@@ -758,23 +762,23 @@ void SceneMain::Progression(float deltaTime) {
 	// Increase difficulty over time
 	// MINUTE 1:
 	if (m_gameTimer <= 60.0f) {
-		m_enemySpawnInterval = m_baseEnemySpawnInterval;		// Default: 1.5
-		m_enemySpawnWeights[0] = m_baseEnemySpawnWeights[0];	// Default: 0.5
-		m_enemySpawnWeights[1] = m_baseEnemySpawnWeights[1];	// Default: 0.0
-		m_enemySpawnWeights[2] = m_baseEnemySpawnWeights[2];	// Default: 0.0
+		m_enemySpawnInterval = m_baseEnemySpawnInterval;		// Default: 1.7
+		m_enemySpawnWeights[0] = m_baseEnemySpawnWeights[0];	// Default: 0.95
+		m_enemySpawnWeights[1] = m_baseEnemySpawnWeights[1];	// Default: 0.00
+		m_enemySpawnWeights[2] = m_baseEnemySpawnWeights[2];	// Default: 0.00
 	}
 
 	// MINUTE 2:
 	else if (m_gameTimer >= 60 && m_gameTimer <= 120.0f) {
-		m_enemySpawnInterval = 1.6f;
+		m_enemySpawnInterval = 1.4f;
 		m_enemySpawnWeights[0] = 0.85f;
 		m_enemySpawnWeights[1] = 0.15f;
-		m_enemySpawnWeights[2] = 0.0f;
+		m_enemySpawnWeights[2] = 0.00f;
 	}
 
 	// MINUTE 3:
 	else if (m_gameTimer >= 120 && m_gameTimer <= 180.0f) {
-		m_enemySpawnInterval = 1.3f;
+		m_enemySpawnInterval = 1.2f;
 		m_enemySpawnWeights[0] = 0.75f;
 		m_enemySpawnWeights[1] = 0.15f;
 		m_enemySpawnWeights[2] = 0.1f;
@@ -791,9 +795,9 @@ void SceneMain::Progression(float deltaTime) {
 	// MINUTE 5:
 	else if (m_gameTimer >= 240 && m_gameTimer <= 300.0f) {
 		m_enemySpawnInterval = 0.8f;
-		m_enemySpawnWeights[0] = 0.55f;
-		m_enemySpawnWeights[1] = 0.25f;
-		m_enemySpawnWeights[2] = 0.2f;
+		m_enemySpawnWeights[0] = 0.60f;
+		m_enemySpawnWeights[1] = 0.23f;
+		m_enemySpawnWeights[2] = 0.17f;
 	}
 
 	// BOSS FIGHT:
@@ -811,7 +815,7 @@ void SceneMain::Progression(float deltaTime) {
 			}
 
 			m_enemies.clear();
-			m_enemySpawnInterval = 4.0f;
+			m_enemySpawnInterval = 3.0f;
 
 			// Spawn Boss
 			m_finalBoss = new Boss();
@@ -903,6 +907,11 @@ void SceneMain::DebugKeys(float deltaTime, InputSystem& inputSystem)
 	if (inputSystem.GetKeyState(SDL_SCANCODE_F5) == BS_PRESSED)
 	{
 		m_showHitbox = !m_showHitbox;
+	}
+	// FULLSCREEN - F11
+	if (inputSystem.GetKeyState(SDL_SCANCODE_F11) == BS_PRESSED)
+	{
+		m_pRenderer->ToggleFullscreen();
 	}
 	// RESTART GAME - F12
 	if (inputSystem.GetKeyState(SDL_SCANCODE_F12) == BS_PRESSED)

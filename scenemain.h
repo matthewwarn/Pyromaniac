@@ -99,11 +99,11 @@ protected:
 	Sprite* m_backgroundSprite = nullptr;
 	Sprite* m_winSprite;
 
-	const float m_baseEnemySpawnWeights[3] = { 0.5f, 0.0f, 0.0f }; // Weights for enemy types
-	float m_enemySpawnWeights[3] = { 0.5f, 0.0f, 0.0f }; // Weights for enemy types
+	const float m_baseEnemySpawnWeights[3] = { 0.95f, 0.00f, 0.0f }; // Weights for enemy types
+	float m_enemySpawnWeights[3] = { 0.95f, 0.00f, 0.0f }; // Weights for enemy types
 
 	float m_enemySpawnTimer;
-	const float m_baseEnemySpawnInterval = 2.0f;
+	const float m_baseEnemySpawnInterval = 1.7f;
 	float m_enemySpawnInterval;
 
 	float m_gameTimer;

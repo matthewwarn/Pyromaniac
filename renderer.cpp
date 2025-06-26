@@ -1,4 +1,3 @@
-// COMP710 GP Framework 2022
 
 // This include:
 #include "renderer.h"
@@ -71,6 +70,8 @@ bool Renderer::Initialise(bool windowed, int width, int height)
 		return false;
 	}
 
+	m_fullscreen = false;
+
 	if (!windowed)
 	{
 		// Go fullscreen, with current resolution!
@@ -100,11 +101,11 @@ bool Renderer::Initialise(bool windowed, int width, int height)
 
 		width = widest;
 		height = andItsHeight;
+
+		m_fullscreen = true;
 	}
 
 	bool initialised = InitialiseOpenGL(width, height);
-
-	SetFullscreen(!windowed);
 
 	if (initialised)
 	{
@@ -115,7 +116,7 @@ bool Renderer::Initialise(bool windowed, int width, int height)
 
 	ImGui::CreateContext();
 	ImGui_ImplSDL2_InitForOpenGL(m_pWindow, m_glContext);
-	ImGui_ImplOpenGL3_Init();
+	ImGui_ImplOpenGL3_Init("#version 330");
 	ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 
 	// Baking a version of the text at different sizes to prevent blur
@@ -154,8 +155,17 @@ bool Renderer::InitialiseOpenGL(int screenWidth, int screenHeight)
 	m_iWidth = screenWidth;
 	m_iHeight = screenHeight;
 
-	m_pWindow = SDL_CreateWindow("COMP710 GP Framework 2025", SDL_WINDOWPOS_UNDEFINED,
+	m_pWindow = SDL_CreateWindow("Pyromaniac", SDL_WINDOWPOS_UNDEFINED,
 						     	  SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_OPENGL);
+
+	SDL_Surface* icon = IMG_Load("../assets/favicon.ico");
+	if (icon != nullptr) {
+		SDL_SetWindowIcon(m_pWindow, icon);
+		SDL_FreeSurface(icon);
+	}
+	else {
+		SDL_Log("Failed to load icon: %s", SDL_GetError());
+	}
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -188,6 +198,11 @@ bool Renderer::InitialiseOpenGL(int screenWidth, int screenHeight)
 
 void Renderer::Clear()
 {
+	int w, h;
+	SDL_GetWindowSize(m_pWindow, &w, &h);
+	m_iWidth = w;
+	m_iHeight = h;
+
 	glClearColor(m_fClearRed, m_fClearGreen, m_fClearBlue, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -204,18 +219,30 @@ void Renderer::Present()
 	SDL_GL_SwapWindow(m_pWindow);
 }
 
-void Renderer::SetFullscreen(bool fullscreen)
+void Renderer::ToggleFullscreen()
 {
-	if (fullscreen)
-	{
-		SDL_SetWindowFullscreen(m_pWindow, SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_ALWAYS_ON_TOP);
-		SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
-		SDL_SetWindowSize(m_pWindow, m_iWidth, m_iHeight);
-	}
+	m_fullscreen = !m_fullscreen;
 
+	if (m_fullscreen)
+	{
+		SDL_SetWindowFullscreen(m_pWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+		SDL_DisplayMode displayMode;
+		if (SDL_GetCurrentDisplayMode(0, &displayMode) == 0)
+		{
+			m_iWidth = displayMode.w;
+			m_iHeight = displayMode.h;
+		}
+	}
 	else
 	{
 		SDL_SetWindowFullscreen(m_pWindow, 0);
+
+		m_iWidth = 1280;
+		m_iHeight = 720;
+
+		SDL_SetWindowSize(m_pWindow, m_iWidth, m_iHeight);
+		SDL_SetWindowPosition(m_pWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 	}
 }
 

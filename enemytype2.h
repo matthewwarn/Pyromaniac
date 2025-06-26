@@ -28,8 +28,8 @@ public:
 
 		m_sprite = m_animatedSprite;
 
-		m_originalSpeed = 125.0f;
-		m_speed = 125.0f;
+		m_originalSpeed = 120.0f;
+		m_speed = 120.0f;
 		m_health = 20.0f;
 
 		m_points = 1500;
